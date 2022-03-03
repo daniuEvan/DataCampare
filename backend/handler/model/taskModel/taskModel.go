@@ -16,17 +16,17 @@ import (
 //
 type TaskList struct {
 	gorm.Model
-	TaskId            uint   `gorm:"type:int;primarykey"`
-	TaskName          string `gorm:"type:varchar(100);not null"`
-	RunTime           time.Time
-	SourceDBLinkId    uint   `gorm:"type:int;not null;comment:任务源数据库连接id"`
-	TargetDBLinkId    uint   `gorm:"type:int;not null;comment:任务目标数据库连接id"`
-	ResultTableSchema string `gorm:"type:varchar(50);not null;comment:比对结果表schema"`
-	ResultTableName   string `gorm:"type:varchar(50);not null;comment:比对结果表name"`
-	ConfigTableSchema string `gorm:"type:varchar(50);not null;comment:中间配置表schema"`
-	ConfigTableName   string `gorm:"type:varchar(50);not null;comment:中间配置表name"`
-	TaskConcurrent    uint   `gorm:"type:int;not null;comment:任务并发"`
-	TaskSchedule      string `gorm:"type:varchar(50);comment:任务计划"` // todo 具体设计
+	TaskId           uint   `gorm:"type:int;primarykey"`
+	TaskName         string `gorm:"type:varchar(100);not null"`
+	RunTime          time.Time
+	TaskSchedule     string `gorm:"type:varchar(50);comment:任务计划"` // todo 具体设计
+	SourceDBLinkId   uint   `gorm:"type:int;not null;comment:任务源数据库连接id"`
+	TargetDBLinkId   uint   `gorm:"type:int;not null;comment:任务目标数据库连接id"`
+	ResultTableOwner string `gorm:"type:varchar(50);not null;comment:比对结果表Owner"`
+	ResultTableName  string `gorm:"type:varchar(50);not null;comment:比对结果表name"`
+	ConfigTableOwner string `gorm:"type:varchar(50);not null;comment:中间配置表Owner"`
+	ConfigTableName  string `gorm:"type:varchar(50);not null;comment:中间配置表name"`
+	TaskConcurrent   uint   `gorm:"type:int;not null;comment:任务并发"`
 }
 
 //

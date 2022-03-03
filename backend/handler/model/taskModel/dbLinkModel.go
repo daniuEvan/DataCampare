@@ -21,5 +21,4 @@ type DBLink struct {
 	DBName     string `gorm:"type:varchar(25);not null"`
 	DBUsername string `gorm:"type:varchar(25);not null"`
 	DBPassword string `gorm:"type:varchar(25);not null"`
-	LinkType   uint   `gorm:"type:int;not null;comment:0-源端数据库,1-目标端数据库"`
 }
