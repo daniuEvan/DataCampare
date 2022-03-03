@@ -10,10 +10,13 @@ require (
 	github.com/go-playground/locales v0.13.0
 	github.com/go-playground/universal-translator v0.17.0
 	github.com/go-playground/validator/v10 v10.4.1
+	github.com/go-sql-driver/mysql v1.6.0
 	github.com/gomodule/redigo v1.8.6
+	github.com/lib/pq v1.10.4
 	github.com/natefinch/lumberjack v2.0.0+incompatible
-	github.com/satori/go.uuid v1.2.0
+	github.com/sijms/go-ora/v2 v2.4.4
 	github.com/spf13/viper v1.10.0
+	github.com/vertica/vertica-sql-go v1.2.1
 	go.uber.org/zap v1.19.1
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	gorm.io/driver/mysql v1.2.1
@@ -25,7 +28,6 @@ require (
 	github.com/BurntSushi/toml v0.4.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-asn1-ber/asn1-ber v1.5.1 // indirect
-	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect

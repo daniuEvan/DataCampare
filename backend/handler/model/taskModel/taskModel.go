@@ -26,7 +26,7 @@ type TaskList struct {
 	ResultTableName  string `gorm:"type:varchar(50);not null;comment:比对结果表name"`
 	ConfigTableOwner string `gorm:"type:varchar(50);not null;comment:中间配置表Owner"`
 	ConfigTableName  string `gorm:"type:varchar(50);not null;comment:中间配置表name"`
-	TaskConcurrent   uint   `gorm:"type:int;not null;comment:任务并发"`
+	TaskConcurrent   uint   `gorm:"type:int;default:1;comment:任务并发"`
 }
 
 //
