@@ -3,29 +3,29 @@
  * @desc: ...
  */
 
-package dbLink
+package dbLinkEngine
 
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/sijms/go-ora/v2"
 )
 
 //
-// MysqlLink
-// @Description: Mysql 连接
+// OracleLink
+// @Description: Oracle 连接
 //
-type MysqlLink struct {
+type OracleLink struct {
 	DBInfo DataBaseOption
 	Conn   *sql.DB
 }
 
-func NewMysqlLink(dbInfo DataBaseOption) (*MysqlLink, error) {
-	// "用户名:密码@[连接方式](主机名:端口号)/数据库名"
+func NewOracleLink(dbInfo DataBaseOption) (*OracleLink, error) {
+	// "oracle://user:pass@server/service_name"
 	conn, err := sql.Open(
-		"mysql",
+		"oracle",
 		fmt.Sprintf(
-			"%s:%s@(%s:%d)/%s",
+			"oracle://%s:%s@%s:%d/%s",
 			dbInfo.DBUsername,
 			dbInfo.DBPassword,
 			dbInfo.DBHost,
@@ -40,7 +40,7 @@ func NewMysqlLink(dbInfo DataBaseOption) (*MysqlLink, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &MysqlLink{
+	return &OracleLink{
 		DBInfo: dbInfo,
 		Conn:   conn,
 	}, err
@@ -52,7 +52,7 @@ func NewMysqlLink(dbInfo DataBaseOption) (*MysqlLink, error) {
 // @param sqlStr: 查询sql
 // @return map[string]interface{}
 //
-func (v *MysqlLink) Query(sqlStr string) (map[string]interface{}, error) {
+func (v *OracleLink) Query(sqlStr string) (map[string]interface{}, error) {
 	rows, err := v.Conn.Query(sqlStr)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (v *MysqlLink) Query(sqlStr string) (map[string]interface{}, error) {
 // @return sql.Result:  result.RowsAffected()
 // @return error:
 //
-func (v *MysqlLink) Exec(sqlStr string) (sql.Result, error) {
+func (v *OracleLink) Exec(sqlStr string) (sql.Result, error) {
 	result, err := v.Conn.Exec(sqlStr)
 	if err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ func (v *MysqlLink) Exec(sqlStr string) (sql.Result, error) {
 }
 
 // Close 关闭数据库连接
-func (v *MysqlLink) Close() error {
+func (v *OracleLink) Close() error {
 	err := v.Conn.Close()
 	if err != nil {
 		return err

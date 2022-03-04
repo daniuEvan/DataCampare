@@ -19,3 +19,18 @@ func ValidateMobile(f1 validator.FieldLevel) bool {
 	}
 	return true
 }
+
+// ValidateDBType 数据库类型校验器
+func ValidateDBType(f1 validator.FieldLevel) bool {
+	dbTypeMap := map[string]int{
+		"vertica":  1,
+		"oracle":   2,
+		"mysql":    3,
+		"postgres": 4,
+	}
+	dbType := f1.Field().String()
+	if dbTypeMap[dbType] == 0 {
+		return false
+	}
+	return true
+}

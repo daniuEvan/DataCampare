@@ -3,7 +3,9 @@
  * @desc: ...
  */
 
-package dbLink
+package dbLinkEngine
+
+import "database/sql"
 
 //
 // DBLinker
@@ -11,6 +13,6 @@ package dbLink
 //
 type DBLinker interface {
 	Query(sqlStr string) (map[string]interface{}, error)
-	Exec(sqlStr string) (string, error)
+	Exec(sqlStr string) (sql.Result, error)
 	Close() error
 }

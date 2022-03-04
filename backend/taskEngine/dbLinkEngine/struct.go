@@ -3,7 +3,7 @@
  * @desc: ...
  */
 
-package dbLink
+package dbLinkEngine
 
 //
 // DataBaseOption
@@ -12,7 +12,7 @@ package dbLink
 type DataBaseOption struct {
 	DBType     string
 	DBHost     string
-	DBPort     int
+	DBPort     uint
 	DBName     string
 	DBUsername string
 	DBPassword string

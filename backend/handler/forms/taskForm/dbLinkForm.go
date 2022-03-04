@@ -10,11 +10,12 @@ package taskForm
 // @Description: 数据连接表单
 //
 type DBLinkForm struct {
-	LinkName   string `forms:"LinkName" json:"LinkName" binding:""`
-	DBType     string `forms:"DBType" json:"DBType" binding:""`
-	DBHost     string `forms:"DBHost" json:"DBHost" binding:""`
-	DBPort     uint   `forms:"DBPort" json:"DBPort" binding:"gt=0"`
-	DBName     string `forms:"DBName" json:"DBName" binding:""`
-	DBUsername string `forms:"DBUsername" json:"DBUsername" binding:""`
-	DBPassword string `forms:"DBPassword" json:"DBPassword" binding:""`
+	ID         uint   `forms:"ID" json:"ID" binding:"-"`
+	LinkName   string `forms:"LinkName" json:"LinkName" binding:"required"`
+	DBType     string `forms:"DBType" json:"DBType" binding:"required,dbType"`
+	DBHost     string `forms:"DBHost" json:"DBHost" binding:"required"`
+	DBPort     uint   `forms:"DBPort" json:"DBPort" binding:"required,gt=0,lte=65535"`
+	DBName     string `forms:"DBName" json:"DBName" binding:"required"`
+	DBUsername string `forms:"DBUsername" json:"DBUsername" binding:"required"`
+	DBPassword string `forms:"DBPassword" json:"DBPassword" binding:"required,gte=6,lt=18"`
 }

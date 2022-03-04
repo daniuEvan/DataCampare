@@ -13,9 +13,8 @@ import "gorm.io/gorm"
 //
 type DBLink struct {
 	gorm.Model
-	LinkId     uint   `gorm:"type:int;primarykey"`
 	LinkName   string `gorm:"type:varchar(100);not null"`
-	DBType     string `gorm:"type:varchar(25);not null;comment:0-oracle,1-vertica,2-mysql,3-postgres"`
+	DBType     string `gorm:"type:varchar(25);not null;comment:oracle,vertica,mysql,postgres"`
 	DBHost     string `gorm:"type:varchar(100);not null"`
 	DBPort     uint   `gorm:"type:int;not null"`
 	DBName     string `gorm:"type:varchar(25);not null"`

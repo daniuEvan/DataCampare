@@ -3,7 +3,7 @@
  * @desc: ...
  */
 
-package dbLink
+package dbLinkEngine
 
 import (
 	"database/sql"
