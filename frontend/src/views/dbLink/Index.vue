@@ -6,10 +6,11 @@
           <span style="margin-left: 10px;color: #969696">数据库连接</span>
           <el-button style="float: right; padding: 3px" type="text"><i class="el-icon-paperclip"></i>添加</el-button>
         </div>
-        <div v-for="o in 4" :key="o" class="text item">
+        <div v-for="o in dbLinkInfoArr.length" :key="o" class="text item">
           <div class="db-icon"><img style="width: 16px;margin-right: 3px" src="../../assets/databaseLogo/mysql.png"
                                     alt=""></div>
-          <div class="db-name" @click="clickTest(o)">{{ '列表内容 ' + o }}</div>
+          <div class="db-name" @click="clickDBLink(o)">{{ dbLinkInfoArr[o - 1]["LinkName"] }}
+          </div>
           <div class="db-delete" style="color: red"><i class="el-icon-delete"></i></div>
           <div class="db-edit" style="color: #409EFF"><i class="el-icon-edit"></i></div>
         </div>
@@ -18,7 +19,7 @@
     <el-container>
       <el-header>Header</el-header>
       <el-main>
-        <DBLinkMsg/>
+        <DBLinkMsg :dbLinkInfo="dbLinkInfo"/>
       </el-main>
     </el-container>
   </el-container>
@@ -30,19 +31,32 @@ import request from "@/utils/request";
 
 export default {
   name: "index",
+  data() {
+    return {
+      dbLinkInfoArr: [],
+      dbLinkInfo: {}
+    }
+  },
   components: {
     DBLinkMsg
   },
   methods: {
-    clickTest(item) {
-      alert(item)
-    }
+    clickDBLink(item) {
+      // 点击更改值
+      this.dbLinkInfo = this.dbLinkInfoArr[item - 1]
+    },
   },
   beforeMount() {
+    let _this = this
     request.get('/db_link/list')
-        .then(response => (
-            console.log(response)
-        ))
+        .then(function (response) {
+          if (response.data.code !== 200) {
+            alert(response.data.msg)
+            return null
+          }
+          _this.dbLinkInfoArr = response.data.data
+          _this.dbLinkInfo = _this.dbLinkInfoArr[0]
+        })
         .catch(function (err) {
           console.log(err);
         })
