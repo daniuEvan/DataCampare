@@ -1,7 +1,7 @@
 <template>
   <el-row :gutter="20">
-    <el-col :span="14" offset=3 >
-      <el-form ref="form" :model="form" label-width="80px" label-suffix=":" disabled="true" size="mini">
+    <el-col :span="14" :offset= "3" >
+      <el-form ref="form" :model="form" label-width="80px" label-suffix=":" :disabled="true" size="mini">
         <el-form-item label="活动名称">
           <el-input class="input-item" v-model="form.name"></el-input>
         </el-form-item>
