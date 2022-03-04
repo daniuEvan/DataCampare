@@ -1,7 +1,11 @@
 <template>
   <div id="app">
-    <Navbar />
-    <router-view></router-view>
+    <div id="page-head">
+      <Navbar/>
+    </div>
+    <div id="page-body">
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
@@ -22,11 +26,21 @@ html, body {
   margin: 0;
   padding: 0;
 }
+
+#page-head {
+  height: 60px;
+}
+
+#page-body {
+  height: calc(100% - 60px);
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
+  /*text-align: center;*/
   color: #2c3e50;
+  height: 100%;
 }
 </style>

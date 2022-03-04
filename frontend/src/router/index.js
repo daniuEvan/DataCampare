@@ -2,11 +2,13 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 // import userRouter from './moduls/user';
 import baseRouter from "@/router/moduls/base";
+import dbLinkRouter from "@/router/moduls/dbLink";
 
 Vue.use(VueRouter);
 
 const routes = [
     ...baseRouter,
+    ...dbLinkRouter
     // ...userRouter,
 ];
 
