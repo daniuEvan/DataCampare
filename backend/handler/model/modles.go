@@ -7,12 +7,12 @@ package model
 
 import (
 	"DataCompare/handler/model/taskModel"
-	"DataCompare/handler/model/userModel"
 )
 
 // ModelsArr 所有model示例
 var ModelsArr = []interface{}{
-	&userModel.User{},
+	//&userModel.User{},
 	&taskModel.TaskList{},
+	&taskModel.TaskLog{},
 	&taskModel.DBLink{},
 }

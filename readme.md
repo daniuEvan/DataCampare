@@ -23,7 +23,7 @@
 ## CD
 
 ```
-cd SweetCake/fontend
+cd frontend
 
 ```
 

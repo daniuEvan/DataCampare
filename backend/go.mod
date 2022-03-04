@@ -14,6 +14,7 @@ require (
 	github.com/gomodule/redigo v1.8.6
 	github.com/lib/pq v1.10.4
 	github.com/natefinch/lumberjack v2.0.0+incompatible
+	github.com/robfig/cron/v3 v3.0.1
 	github.com/sijms/go-ora/v2 v2.4.4
 	github.com/spf13/viper v1.10.0
 	github.com/vertica/vertica-sql-go v1.2.1

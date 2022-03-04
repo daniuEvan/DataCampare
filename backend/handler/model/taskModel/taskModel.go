@@ -7,7 +7,6 @@ package taskModel
 
 import (
 	"gorm.io/gorm"
-	"time"
 )
 
 //
@@ -18,8 +17,7 @@ type TaskList struct {
 	gorm.Model
 	TaskId           uint   `gorm:"type:int;primarykey"`
 	TaskName         string `gorm:"type:varchar(100);not null"`
-	RunTime          time.Time
-	TaskSchedule     string `gorm:"type:varchar(50);comment:任务计划"` // todo 具体设计
+	TaskSchedule     string `gorm:"type:varchar(50);comment:任务计划"` // 符合linux crontab 表达式
 	SourceDBLinkId   uint   `gorm:"type:int;not null;comment:任务源数据库连接id"`
 	TargetDBLinkId   uint   `gorm:"type:int;not null;comment:任务目标数据库连接id"`
 	ResultTableOwner string `gorm:"type:varchar(50);not null;comment:比对结果表Owner"`
