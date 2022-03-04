@@ -10,11 +10,13 @@ import (
 	"DataCompare/handler/router/smRouter"
 	"DataCompare/handler/router/taskRouter"
 	"DataCompare/handler/router/userRouter"
+	"DataCompare/middleware"
 	"github.com/gin-gonic/gin"
 )
 
 func InitRouters() *gin.Engine {
 	defaultRouter := gin.Default()
+	defaultRouter.Use(middleware.Cors()) // 跨域
 	apiGroup := defaultRouter.Group("api/v1")
 	baseRouter.InitBaseRouter(apiGroup)   // base 通用
 	userRouter.InitUserRouter(apiGroup)   // user 用户路由
