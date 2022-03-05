@@ -7,17 +7,17 @@
           <el-button style="float: right; padding: 3px" type="text"><i class="el-icon-paperclip"></i>添加</el-button>
         </div>
         <div v-for="o in dbLinkInfoArr.length" :key="o" class="text item">
-          <div class="db-icon"><img style="width: 16px;margin-right: 3px" src="../../assets/databaseLogo/mysql.png"
-                                    alt=""></div>
+          <div class="db-icon"><img style="width: 16px;margin:1px 3px 0 0" :src="dbLogo[dbLinkInfoArr[o - 1]['DBType']]" alt="">
+          </div>
           <div class="db-name" @click="clickDBLink(o)">{{ dbLinkInfoArr[o - 1]["LinkName"] }}
           </div>
-          <div class="db-delete" style="color: red"><i class="el-icon-delete"></i></div>
-          <div class="db-edit" style="color: #409EFF"><i class="el-icon-edit"></i></div>
+          <div class="db-delete"  @click="clickDBLinkDelete(dbLinkInfoArr[o - 1]['ID'])" style="color: red"><i class="el-icon-delete"></i></div>
+          <div class="db-edit" @click="clickDBLinkEdit(dbLinkInfoArr[o - 1]['ID'])" style="color: #409EFF"><i class="el-icon-edit"></i></div>
         </div>
       </el-card>
     </el-aside>
     <el-container>
-      <el-header>Header</el-header>
+      <el-header>{{ dbLinkInfo['LinkName'] }}</el-header>
       <el-main>
         <DBLinkMsg :dbLinkInfo="dbLinkInfo"/>
       </el-main>
@@ -34,7 +34,13 @@ export default {
   data() {
     return {
       dbLinkInfoArr: [],
-      dbLinkInfo: {}
+      dbLinkInfo: {},
+      dbLogo: {
+        "mysql": require("@/assets/databaseLogo/mysql.png"),
+        "vertica": require("@/assets/databaseLogo/vertica.png"),
+        "oracle": require("@/assets/databaseLogo/oracle.png"),
+        "postgres": require("@/assets/databaseLogo/postgres.png"),
+      },
     }
   },
   components: {
@@ -45,8 +51,25 @@ export default {
       // 点击更改值
       this.dbLinkInfo = this.dbLinkInfoArr[item - 1]
     },
+    clickDBLinkDelete(id){
+      request.delete('/db_link/')
+          .then(function (response) {
+            if (response.data.code !== 200) {
+              alert(response.data.msg)
+              return null
+            }
+            _this.dbLinkInfoArr = response.data.data
+            _this.dbLinkInfo = _this.dbLinkInfoArr[0]
+          })
+          .catch(function (err) {
+            console.log(err);
+          })
+    },
+    clickDBLinkEdit(id){
+
+    },
   },
-  beforeMount() {
+  mounted() {
     let _this = this
     request.get('/db_link/list')
         .then(function (response) {
@@ -109,7 +132,7 @@ body > .el-container {
 
 .item {
   padding: 5px;
-  line-height: 20px;
+  line-height: 15px;
   /*font-size: 15px;*/
   color: #333333;
   border-bottom: 1px solid #e5e5e5;
