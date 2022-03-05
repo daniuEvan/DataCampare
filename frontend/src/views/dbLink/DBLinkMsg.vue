@@ -1,7 +1,7 @@
 <template>
   <el-row :gutter="20">
     <el-col :span="14" :offset="3">
-      <el-form ref="form" label-width="auto" label-suffix=":" :disabled="true" size="mini">
+      <el-form ref="form" label-width="auto"           label-suffix=" : " :disabled="true" size="mini">
         <el-form-item label="连接名称">
           <el-input class="input-item" :placeholder="dbLinkInfo['LinkName']"></el-input>
         </el-form-item>
@@ -23,9 +23,9 @@
         <el-form-item label="创建日期">
           <el-input class="input-item" :placeholder="dbLinkInfo['CreatedAt']"></el-input>
         </el-form-item>
-        <el-form-item label="修改日期">
-          <el-input class="input-item" :placeholder="dbLinkInfo['UpdatedAt']"></el-input>
-        </el-form-item>
+<!--        <el-form-item label="修改日期">-->
+<!--          <el-input class="input-item" :placeholder="dbLinkInfo['UpdatedAt']"></el-input>-->
+<!--        </el-form-item>-->
       </el-form>
     </el-col>
   </el-row>

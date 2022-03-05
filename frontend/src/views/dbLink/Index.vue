@@ -1,14 +1,16 @@
 <template>
   <el-container>
-    <el-aside width="20%">
+    <el-aside width="300px">
       <el-card class="box-card" shadow="never">
         <div slot="header" class="clearfix">
           <span style="margin-left: 10px;color: #969696">数据库连接</span>
-          <el-button style="float: right; padding: 3px" type="text"><i class="el-icon-paperclip"></i>添加</el-button>
+          <el-button @click="clickDBLinkAdd()" style="float: right; padding: 3px" type="text"><i
+              class="el-icon-paperclip">新建</i></el-button>
         </div>
         <div v-for="o in dbLinkInfoArr.length" :key="o" class="text item">
-          <div class="db-icon"><img style="width: 16px;margin:1px 3px 0 0" :src="dbLogo[dbLinkInfoArr[o - 1]['DBType']]"
-                                    alt="">
+          <div class="db-icon" @click="clickDBLink(o)"><img style="width: 18px;padding:2px 5px 0 0"
+                                                            :src="dbLogo[dbLinkInfoArr[o - 1]['DBType']]"
+                                                            alt="">
           </div>
           <div class="db-name" @click="clickDBLink(o)">{{ dbLinkInfoArr[o - 1]["LinkName"] }}
           </div>
@@ -25,7 +27,10 @@
         <DBLinkMsg :dbLinkInfo="dbLinkInfo"/>
       </el-main>
       <el-main v-show="dbLinkInfoFormShow">
-        <DBLinkForm :dbLinkInfo="dbLinkEditor"/>
+        <DBLinkEdit :dbLinkEditor="dbLinkEditor" :toDefaultShow="toDefaultShow" :getDBLink="getDBLink"/>
+      </el-main>
+      <el-main v-show="dbLinkCreateInfoFormShow">
+        <DBLinkCreate :toDefaultShow="toDefaultShow" :getDBLink="getDBLink"/>
       </el-main>
     </el-container>
   </el-container>
@@ -34,7 +39,8 @@
 <script>
 import DBLinkMsg from "@/views/dbLink/DBLinkMsg";
 import request from "@/utils/request";
-import DBLinkForm from "@/views/dbLink/DBLinkForm";
+import DBLinkEdit from "@/views/dbLink/DBLinkEdit";
+import DBLinkCreate from "@/views/dbLink/DBLinkCreate";
 
 export default {
   name: "index",
@@ -42,6 +48,7 @@ export default {
     return {
       dbLinkInfoMsgShow: true,  // 展示数据连接信息
       dbLinkInfoFormShow: false, // 编辑组件
+      dbLinkCreateInfoFormShow: false, // 提交组件
       dbLinkInfoArr: [],
       dbLinkName: "",
       dbLinkInfo: {},
@@ -52,25 +59,36 @@ export default {
         "postgres": require("@/assets/databaseLogo/postgres.png"),
       },
       dbLinkEditor: {},
+      dbLinkCreateInfoForm: {},
     }
   },
   components: {
     DBLinkMsg,
-    DBLinkForm,
+    DBLinkEdit,
+    DBLinkCreate,
   },
   methods: {
-    toDefaultShow(ok) {
-      if (!ok) {
+    toDefaultShow(item) {
+      this.dbLinkCreateInfoForm = {}
+      this.dbLinkEditor = {}
+      if (item === "edit") {
         this.dbLinkInfoFormShow = true
         this.dbLinkInfoMsgShow = false
+        this.dbLinkCreateInfoFormShow = false
+        return null
+      } else if (item === "create") {
+        this.dbLinkInfoFormShow = false
+        this.dbLinkInfoMsgShow = false
+        this.dbLinkCreateInfoFormShow = true
         return null
       }
       this.dbLinkInfoFormShow = false
+      this.dbLinkCreateInfoFormShow = false
       this.dbLinkInfoMsgShow = true
       return null
     },
     clickDBLink(item) {
-      this.toDefaultShow(true)
+      this.toDefaultShow()
       // 点击更改值
       this.dbLinkInfo = this.dbLinkInfoArr[item - 1]
       this.dbLinkName = this.dbLinkInfo["LinkName"]
@@ -80,41 +98,52 @@ export default {
       request.get('/db_link/list')
           .then(function (response) {
             if (response.data.code !== 200) {
-              alert(response.data.msg)
+              _this.$message.error(response.data.msg)
               return null
             }
             _this.dbLinkInfoArr = response.data.data
             _this.dbLinkInfo = _this.dbLinkInfoArr[0]
             _this.dbLinkName = _this.dbLinkInfo["LinkName"]
-
           })
           .catch(function (err) {
-            console.log(err);
+            _this.$message.error(err)
           })
 
     },
     clickDBLinkDelete(id) {
       let _this = this
-      request.delete(`/db_link/${id}`)
-          .then(function (response) {
-            if (response.data.code !== 200) {
-              _this.$message.error({message: '连接删除失败' + response.data.msg,});
-              return null
-            }
-            _this.$message.success({message: '连接删除成功',});
-            _this.getDBLink()
 
-          })
-          .catch(function (err) {
-            console.log(err);
-            _this.$message.error({message: '连接删除失败',});
-          })
+      this.$confirm('此操作将永久删除此链接, 是否继续?', '提示', {
+        confirmButtonText: '确定删除',
+        cancelButtonText: '取消',
+        type: 'error'
+      }).then(() => {
+        request.delete(`/db_link/${id}`)
+            .then(function (response) {
+              if (response.data.code !== 200) {
+                _this.$message.error({message: '连接删除失败' + response.data.msg,});
+                return null
+              }
+              _this.$message.success({message: '连接删除成功',});
+              _this.getDBLink()
+
+            })
+            .catch(function (err) {
+              console.log(err);
+              _this.$message.error({message: '连接删除失败',});
+            })
+      })
+
     },
     clickDBLinkEdit(item) {
       this.dbLinkName = item["LinkName"]
-      this.toDefaultShow()
+      this.toDefaultShow("edit")
       this.dbLinkEditor = item
 
+    },
+    clickDBLinkAdd() {
+      this.dbLinkName = "新建数据库连接"
+      this.toDefaultShow("create")
     },
   },
   mounted() {
@@ -127,6 +156,7 @@ export default {
 .el-header {
   background-color: #f3f8fd;
   color: #333;
+  font-weight: bold;
   line-height: 40px;
   text-align: center;
   height: 40px !important;
@@ -168,7 +198,7 @@ body > .el-container {
 
 .item {
   padding: 5px;
-  line-height: 15px;
+  line-height: 20px;
   /*font-size: 15px;*/
   color: #333333;
   border-bottom: 1px solid #e5e5e5;
@@ -177,9 +207,14 @@ body > .el-container {
 .db-icon, .db-name {
   display: inline-block;
   vertical-align: middle;
-  font-size: 13px;
+  font-size: 15px;
   color: #494848;
   cursor: pointer;
+
+}
+
+.db-name {
+  padding-bottom: 1px;
 }
 
 .db-delete, .db-edit {
@@ -187,7 +222,7 @@ body > .el-container {
   vertical-align: middle;
   float: right;
   cursor: pointer;
-  font-size: 10px;
+  font-size: 15px;
   margin: 3px;
 }
 

@@ -17,5 +17,5 @@ type DBLinkForm struct {
 	DBPort     uint   `forms:"DBPort" json:"DBPort" binding:"required,gt=0,lte=65535"`
 	DBName     string `forms:"DBName" json:"DBName" binding:"required"`
 	DBUsername string `forms:"DBUsername" json:"DBUsername" binding:"required"`
-	DBPassword string `forms:"DBPassword" json:"DBPassword" binding:"required,gte=6,lt=18"`
+	DBPassword string `forms:"DBPassword" json:"DBPassword" binding:"required,gte=6,lte=18"`
 }
