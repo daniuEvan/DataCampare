@@ -116,7 +116,7 @@ export default {
       this.$confirm('此操作将永久删除此链接, 是否继续?', '提示', {
         confirmButtonText: '确定删除',
         cancelButtonText: '取消',
-        type: 'error'
+        type: 'warning'
       }).then(() => {
         request.delete(`/db_link/${id}`)
             .then(function (response) {
