@@ -39,15 +39,15 @@ export default {
     dbLinkInfo: Object
   },
   // 监听测试
-  watch: {
-    dbLinkInfo: {
-      handler(newValue, oldValue) {
-        console.log(newValue);
-        console.log(oldValue);
-      },
-      immediate: true, // 初次监听即执行
-    },
-  },
+  // watch: {
+  //   dbLinkInfo: {
+  //     handler(newValue, oldValue) {
+  //       console.log(newValue);
+  //       console.log(oldValue);
+  //     },
+  //     immediate: true, // 初次监听即执行
+  //   },
+  // },
   data() {
     return {}
   },
