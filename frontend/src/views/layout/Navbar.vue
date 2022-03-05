@@ -9,7 +9,7 @@
       text-color="#fff"
       active-text-color="#94C9FF">
     <el-menu-item index="taskCenter"><i class="el-icon-folder-opened my-icon"></i>任务中心</el-menu-item>
-    <el-menu-item index="taskManager"><i class="el-icon-edit my-icon"></i>任务管理</el-menu-item>
+    <el-menu-item index="taskManager"><i class="el-icon-guide my-icon"></i>任务管理</el-menu-item>
     <el-menu-item index="schedulerManager"><i class="el-icon-date my-icon"></i>调度管理</el-menu-item>
     <el-menu-item index="dbLinkManager"><i class="el-icon-coin my-icon"></i>连接管理</el-menu-item>
     <el-menu-item index="5"><a href="https://element.eleme.cn/#/zh-CN/component/menu" target="_blank">ele-ui</a>
