@@ -14,5 +14,6 @@ var ModelsArr = []interface{}{
 	//&userModel.User{},
 	&taskModel.TaskList{},
 	&taskModel.TaskLog{},
+	&taskModel.SchedulerList{},
 	&taskModel.DBLink{},
 }
