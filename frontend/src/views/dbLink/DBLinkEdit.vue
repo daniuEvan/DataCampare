@@ -103,7 +103,7 @@ export default {
       let _this = this
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          request.post("/db_link/ping", _this.dbLinkEditor)
+          request.post("/db_link/ping/", _this.dbLinkEditor)
               .then(function (response) {
                 if (response.data.code !== 200) {
                   _this.$message.error({message: '测试连接失败' + response.data.msg, center: true});

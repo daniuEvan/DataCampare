@@ -95,7 +95,7 @@ export default {
     },
     getDBLink() {
       let _this = this
-      request.get('/db_link/list')
+      request.get('/db_link/list/')
           .then(function (response) {
             if (response.data.code !== 200) {
               _this.$message.error(response.data.msg)
@@ -118,7 +118,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        request.delete(`/db_link/${id}`)
+        request.delete(`/db_link/${id}/`)
             .then(function (response) {
               if (response.data.code !== 200) {
                 _this.$message.error({message: '连接删除失败' + response.data.msg,});
