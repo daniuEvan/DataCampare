@@ -2,39 +2,39 @@
   <el-row :gutter="20">
     <el-col :span="14" :offset="4">
       <el-form
-          :model="dbLinkCreate"
+          :model=" taskEditor"
           :rules="rules"
-          ref="dbLinkCreate"
+          ref="taskEditor"
           label-width="120px"
-          label-suffix=" : "
-          size="mini"
+          label-suffix=" : " size="mini"
       >
         <el-form-item prop="LinkName" label="连接名称">
-          <el-input class="input-item" v-model="dbLinkCreate['LinkName']"></el-input>
+          <el-input class="input-item" v-model="taskEditor['LinkName']"></el-input>
         </el-form-item>
-        <el-form-item required prop="DBType" label="数据库类型">
-          <el-select v-model="dbLinkCreate['DBType']" placeholder="请选择数据库类型">
-            <el-option v-for="item in dbTypeArr" :key="item" :label="item" :value="item"></el-option>
+        <el-form-item prop="DBType" label="数据库类型">
+          <el-select v-model="taskEditor['DBType']" placeholder="请选择数据库类型">
+            <el-option v-for="item in dbTypeArr" :key="item" :label="item"
+                       :value="item"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item required prop="DBHost" label="主机地址">
-          <el-input class="input-item" v-model="dbLinkCreate['DBHost']"></el-input>
+        <el-form-item prop="DBHost" label="主机地址">
+          <el-input class="input-item" v-model="taskEditor['DBHost']"></el-input>
         </el-form-item>
-        <el-form-item required prop="DBPort" label="端口">
-          <el-input class="input-item" v-model.number="dbLinkCreate['DBPort']"></el-input>
+        <el-form-item prop="DBPort" label="端口">
+          <el-input class="input-item" v-model.number="taskEditor['DBPort']"></el-input>
         </el-form-item>
-        <el-form-item required prop="DBName" label="数据库">
-          <el-input class="input-item" v-model="dbLinkCreate['DBName']"></el-input>
+        <el-form-item prop="DBName" label="数据库">
+          <el-input class="input-item" v-model="taskEditor['DBName']"></el-input>
         </el-form-item>
-        <el-form-item required prop="DBUsername" label="用户名">
-          <el-input class="input-item" v-model="dbLinkCreate['DBUsername']"></el-input>
+        <el-form-item prop="DBUsername" label="用户名">
+          <el-input class="input-item" v-model="taskEditor['DBUsername']"></el-input>
         </el-form-item>
         <el-form-item label="密码" prop="DBPassword">
-          <el-input show-password class="input-item" v-model="dbLinkCreate['DBPassword']"></el-input>
+          <el-input show-password class="input-item" v-model="taskEditor['DBPassword']"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="testDBLink('dbLinkCreate')">测试</el-button>
-          <el-button type="primary" @click="submitForm('dbLinkCreate')">保存</el-button>
+          <el-button type="primary" @click="testTask('taskEditor')">测试</el-button>
+          <el-button type="primary" @click="submitForm('taskEditor')">保存</el-button>
           <el-button @click="cancel()">取消</el-button>
         </el-form-item>
       </el-form>
@@ -47,8 +47,8 @@
 import request from "@/utils/request";
 
 export default {
-  name: "DBLinkCreate",
-  props: ["getDBLink", "toDefaultShow"],
+  name: "TaskEdit",
+  props: ["taskEditor", "getTask", "toDefaultShow"],
   data() {
     return {
       dbTypeArr: [
@@ -57,7 +57,6 @@ export default {
         "mysql",
         "postgres",
       ],
-      dbLinkCreate: {},
       rules: {
         LinkName: [{required: true, message: '连接名称不能为空', trigger: "blur"}],
         DBType: [{required: true, message: '数据库类型不能为空', trigger: "blur"}],
@@ -77,19 +76,19 @@ export default {
       let _this = this
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          request.post("/db_link/", _this.dbLinkCreate)
+          request.put("/db_link/", _this.taskEditor)
               .then(function (response) {
                 if (response.data.code !== 200) {
-                  _this.$message.error({center: true, message: '数据库连接创建失败' + response.data.msg,});
+                  _this.$message.error({message: '数据库连接更新失败' + response.data.msg, center: true});
                   return null
                 }
-                _this.$message.success({center: true, message: '数据库连接创建成功',});
-                _this.getDBLink()
+                _this.$message.success({message: '数据库连接更新成功', center: true});
+                _this.getTask()
                 _this.toDefaultShow()
               })
               .catch(function (err) {
                 console.log(err);
-                _this.$message.error({center: true, message: '数据库连接创建'});
+                _this.$message.error({message: '数据库连接更新失败', center: true});
               })
         } else {
           this.$message.error("表单校验不通过")
@@ -100,21 +99,21 @@ export default {
     cancel() {
       this.toDefaultShow()
     },
-    testDBLink(formName) {
+    testTask(formName) {
       let _this = this
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          request.post("/db_link/ping/", _this.dbLinkCreate)
+          request.post("/db_link/ping/", _this.taskEditor)
               .then(function (response) {
                 if (response.data.code !== 200) {
-                  _this.$message.error({center: true, message: '测试连接失败' + response.data.msg,});
+                  _this.$message.error({message: '测试连接失败' + response.data.msg, center: true});
                   return null
                 }
-                _this.$message.success({center: true, message: '测试连接成功',});
+                _this.$message.success({message: '测试连接成功', center: true});
               })
               .catch(function (err) {
                 console.log(err);
-                _this.$message.error({center: true, message: '测试连接失败'});
+                _this.$message.error({message: '测试连接失败', center: true});
               })
         } else {
           this.$message.error("表单校验不通过")

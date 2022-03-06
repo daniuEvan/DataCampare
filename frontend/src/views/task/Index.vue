@@ -3,98 +3,93 @@
     <el-aside width="300px">
       <el-card class="box-card" shadow="never">
         <div slot="header" class="clearfix">
-          <span style="margin-left: 10px;color: #969696">数据库连接</span>
-          <el-button @click="clickDBLinkAdd()" style="float: right; padding: 3px" type="text"><i
-              class="el-icon-paperclip">新建连接</i></el-button>
+          <span style="margin-left: 10px;color: #969696">数据比对任务</span>
+          <el-button @click="clickTaskAdd()" style="float: right; padding: 3px" type="text"><i
+              class="el-icon-paperclip">新建任务</i></el-button>
         </div>
-        <div v-for="o in dbLinkInfoArr.length" :key="o" class="text item">
-          <div class="db-icon" @click="clickDBLink(o)"><img style="width: 18px;padding:2px 5px 0 0"
-                                                            :src="dbLogo[dbLinkInfoArr[o - 1]['DBType']]"
+        <div v-for="o in taskInfoArr.length" :key="o" class="text item">
+          <div class="db-icon" @click="clickTask(o)"><img style="width: 18px;padding:2px 5px 0 0"
+                                                            :src="taskLogo"
                                                             alt="">
           </div>
-          <div class="db-name" @click="clickDBLink(o)">{{ dbLinkInfoArr[o - 1]["LinkName"] }}
+          <div class="db-name" @click="clickTask(o)">{{ taskInfoArr[o - 1]["LinkName"] }}
           </div>
-          <div class="db-delete" @click="clickDBLinkDelete(dbLinkInfoArr[o - 1]['ID'])" style="color: red"><i
+          <div class="db-delete" @click="clickTaskDelete(taskInfoArr[o - 1]['ID'])" style="color: red"><i
               class="el-icon-delete"></i></div>
-          <div class="db-edit" @click="clickDBLinkEdit(dbLinkInfoArr[o - 1])" style="color: #409EFF"><i
+          <div class="db-edit" @click="clickTaskEdit(taskInfoArr[o - 1])" style="color: #409EFF"><i
               class="el-icon-edit"></i></div>
         </div>
       </el-card>
     </el-aside>
     <el-container>
-      <el-header>{{ dbLinkName }}</el-header>
-      <el-main v-show="isShow.dbLinkInfoMsgShow">
-        <DBLinkMsg :dbLinkInfo="dbLinkInfo"/>
+      <el-header>{{ taskName }}</el-header>
+      <el-main v-show="isShow.taskInfoMsgShow">
+        <TaskMsg :taskInfo="taskInfo"/>
       </el-main>
-      <el-main v-show="isShow.dbLinkInfoFormShow">
-        <DBLinkEdit :dbLinkEditor="dbLinkEditor" :toDefaultShow="toDefaultShow" :getDBLink="getDBLink"/>
+      <el-main v-show="isShow.taskInfoFormShow">
+        <TaskEdit :taskEditor="taskEditor" :toDefaultShow="toDefaultShow" :getTask="getTask"/>
       </el-main>
-      <el-main v-show="isShow.dbLinkCreateInfoFormShow">
-        <DBLinkCreate :toDefaultShow="toDefaultShow" :getDBLink="getDBLink"/>
+      <el-main v-show="isShow.taskCreateInfoFormShow">
+        <TaskCreate :toDefaultShow="toDefaultShow" :getTask="getTask"/>
       </el-main>
     </el-container>
   </el-container>
 </template>
 
 <script>
-import DBLinkMsg from "@/views/dbLink/DBLinkMsg";
+import TaskMsg from "@/views/task/TaskMsg";
 import request from "@/utils/request";
-import DBLinkEdit from "@/views/dbLink/DBLinkEdit";
-import DBLinkCreate from "@/views/dbLink/DBLinkCreate";
+import TaskEdit from "@/views/task/TaskEdit";
+import TaskCreate from "@/views/task/TaskCreate";
 
 export default {
-  name: "DBLinkIndex",
+  name: "TaskIndex",
   data() {
     return {
       isShow: {
-        dbLinkInfoMsgShow: true,  // 展示数据连接信息
-        dbLinkInfoFormShow: false, // 编辑组件展示
-        dbLinkCreateInfoFormShow: false, // 提交组件展示
+        taskInfoMsgShow: true,  // 展示数据连接信息
+        taskInfoFormShow: false, // 编辑组件展示
+        taskCreateInfoFormShow: false, // 提交组件展示
       },
-      dbLinkInfoArr: [],
-      dbLinkName: "",
-      dbLinkInfo: {},
-      dbLogo: {
-        "mysql": require("@/assets/databaseLogo/mysql.png"),
-        "vertica": require("@/assets/databaseLogo/vertica.png"),
-        "oracle": require("@/assets/databaseLogo/oracle.png"),
-        "postgres": require("@/assets/databaseLogo/postgres.png"),
-      },
-      dbLinkEditor: {},
+      taskInfoArr: [],
+      taskName: "",
+      taskInfo: {},
+      taskLogo: require("@/assets/databaseLogo/task.png"),
+      taskEditor: {},
     }
   },
   components: {
-    DBLinkMsg,
-    DBLinkEdit,
-    DBLinkCreate,
+    TaskMsg,
+    TaskEdit,
+    TaskCreate,
   },
   methods: {
     toDefaultShow(item) {
-      this.dbLinkEditor = {}
+      this.taskEditor = {}
       if (item === "edit") {
-        this.isShow.dbLinkInfoFormShow = true
-        this.isShow.dbLinkInfoMsgShow = false
-        this.isShow.dbLinkCreateInfoFormShow = false
+        this.isShow.taskInfoFormShow = true
+        this.isShow.taskInfoMsgShow = false
+        this.isShow.taskCreateInfoFormShow = false
         return null
       }
       else if (item === "create") {
-        this.isShow.dbLinkInfoFormShow = false
-        this.isShow.dbLinkInfoMsgShow = false
-        this.isShow.dbLinkCreateInfoFormShow = true
+        this.isShow.taskInfoFormShow = false
+        this.isShow.taskInfoMsgShow = false
+        this.isShow.taskCreateInfoFormShow = true
         return null
       }
-      this.isShow.dbLinkInfoFormShow = false
-      this.isShow.dbLinkCreateInfoFormShow = false
-      this.isShow.dbLinkInfoMsgShow = true
+      this.isShow.taskInfoFormShow = false
+      this.isShow.taskCreateInfoFormShow = false
+      this.isShow.taskInfoMsgShow = true
       return null
     },
-    clickDBLink(item) {
+    clickTask(item) {
       this.toDefaultShow()
       // 点击更改值
-      this.dbLinkInfo = this.dbLinkInfoArr[item - 1]
-      this.dbLinkName = this.dbLinkInfo["LinkName"]
+      this.taskInfo = this.taskInfoArr[item - 1]
+      this.taskName = this.taskInfo["LinkName"]
     },
-    getDBLink() {
+    getTask() {
       let _this = this
       request.get('/db_link/list/')
           .then(function (response) {
@@ -102,16 +97,16 @@ export default {
               _this.$message.error(response.data.msg)
               return null
             }
-            _this.dbLinkInfoArr = response.data.data
-            _this.dbLinkInfo = _this.dbLinkInfoArr[0]
-            _this.dbLinkName = _this.dbLinkInfo["LinkName"]
+            _this.taskInfoArr = response.data.data
+            _this.taskInfo = _this.taskInfoArr[0]
+            _this.taskName = _this.taskInfo["LinkName"]
           })
           .catch(function (err) {
             _this.$message.error(err)
           })
 
     },
-    clickDBLinkDelete(id) {
+    clickTaskDelete(id) {
       let _this = this
       this.$confirm('此操作将永久删除此链接, 是否继续?', '提示', {
         confirmButtonText: '确定删除',
@@ -125,7 +120,7 @@ export default {
                 return null
               }
               _this.$message.success({message: '连接删除成功',});
-              _this.getDBLink()
+              _this.getTask()
             })
             .catch(function (err) {
               console.log(err);
@@ -134,19 +129,19 @@ export default {
       })
 
     },
-    clickDBLinkEdit(item) {
-      this.dbLinkName = item["LinkName"]
+    clickTaskEdit(item) {
+      this.taskName = item["LinkName"]
       this.toDefaultShow("edit")
-      this.dbLinkEditor = item
+      this.taskEditor = item
 
     },
-    clickDBLinkAdd() {
-      this.dbLinkName = "新建数据库连接"
+    clickTaskAdd() {
+      this.taskName = "新建数据库连接"
       this.toDefaultShow("create")
     },
   },
   mounted() {
-    this.getDBLink()
+    this.getTask()
   }
 }
 </script>

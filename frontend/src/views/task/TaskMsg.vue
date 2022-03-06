@@ -3,28 +3,28 @@
     <el-col :span="14" :offset="4">
       <el-form ref="form" label-width="auto"           label-suffix=" : " :disabled="true" size="mini">
         <el-form-item label="连接名称">
-          <el-input class="input-item" :placeholder="dbLinkInfo['LinkName']"></el-input>
+          <el-input class="input-item" :placeholder="taskInfo['LinkName']"></el-input>
         </el-form-item>
         <el-form-item label="数据库类型">
-          <el-input class="input-item" :placeholder="dbLinkInfo['DBType']"></el-input>
+          <el-input class="input-item" :placeholder="taskInfo['DBType']"></el-input>
         </el-form-item>
         <el-form-item label="主机地址">
-          <el-input class="input-item" :placeholder="dbLinkInfo['DBHost']"></el-input>
+          <el-input class="input-item" :placeholder="taskInfo['DBHost']"></el-input>
         </el-form-item>
         <el-form-item label="端口">
-          <el-input class="input-item" :placeholder="dbLinkInfo['DBPort']"></el-input>
+          <el-input class="input-item" :placeholder="taskInfo['DBPort']"></el-input>
         </el-form-item>
         <el-form-item label="数据库">
-          <el-input class="input-item" :placeholder="dbLinkInfo['DBName']"></el-input>
+          <el-input class="input-item" :placeholder="taskInfo['DBName']"></el-input>
         </el-form-item>
         <el-form-item label="用户名">
-          <el-input class="input-item" :placeholder="dbLinkInfo['DBUsername']"></el-input>
+          <el-input class="input-item" :placeholder="taskInfo['DBUsername']"></el-input>
         </el-form-item>
         <el-form-item label="创建日期">
-          <el-input class="input-item" :placeholder="dbLinkInfo['CreatedAt']"></el-input>
+          <el-input class="input-item" :placeholder="taskInfo['CreatedAt']"></el-input>
         </el-form-item>
 <!--        <el-form-item label="修改日期">-->
-<!--          <el-input class="input-item" :placeholder="dbLinkInfo['UpdatedAt']"></el-input>-->
+<!--          <el-input class="input-item" :placeholder="taskInfo['UpdatedAt']"></el-input>-->
 <!--        </el-form-item>-->
       </el-form>
     </el-col>
@@ -34,13 +34,13 @@
 
 <script>
 export default {
-  name: "DBLinkMsg",
+  name: "TaskMsg",
   props: {
-    dbLinkInfo: Object
+    taskInfo: Object
   },
   // 监听测试
   // watch: {
-  //   dbLinkInfo: {
+  //   taskInfo: {
   //     handler(newValue, oldValue) {
   //       console.log(newValue);
   //       console.log(oldValue);
@@ -52,7 +52,7 @@ export default {
     return {}
   },
   mounted() {
-    // console.log(this.dbLinkInfo);
+    // console.log(this.taskInfo);
   }
 }
 </script>
