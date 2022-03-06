@@ -15,11 +15,11 @@ import (
 func InitDBLinkRouter(routerGroup *gin.RouterGroup) {
 	dbLinkRouter := routerGroup.Group("db_link").Use(middleware.GinLogger(global.Logger))
 	{
-		dbLinkRouter.GET("/:db_link_id", dbLinkApi.GetDBLinkInfo)
-		dbLinkRouter.GET("/list", dbLinkApi.GetDBLinkList)
+		dbLinkRouter.GET("/:db_link_id/", dbLinkApi.GetDBLinkInfo)
+		dbLinkRouter.GET("/list/", dbLinkApi.GetDBLinkList)
 		dbLinkRouter.POST("/", dbLinkApi.AddDBLink)
-		dbLinkRouter.POST("/ping", dbLinkApi.PingDBLink)
+		dbLinkRouter.POST("/ping/", dbLinkApi.PingDBLink)
 		dbLinkRouter.PUT("/", dbLinkApi.UpdateDBLink)
-		dbLinkRouter.DELETE("/:db_link_id", dbLinkApi.DeleteDBLink)
+		dbLinkRouter.DELETE("/:db_link_id/", dbLinkApi.DeleteDBLink)
 	}
 }

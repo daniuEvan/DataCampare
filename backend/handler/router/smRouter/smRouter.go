@@ -15,6 +15,6 @@ import (
 func InitSmRouter(routerGroup *gin.RouterGroup) {
 	sMRouter := routerGroup.Group("sm").Use(middleware.GinLogger(global.Logger))
 	{
-		sMRouter.GET("/sm_code/:mobile", smApi.GetSmCode)
+		sMRouter.GET("/sm_code/:mobile/", smApi.GetSmCode)
 	}
 }

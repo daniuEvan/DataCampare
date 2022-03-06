@@ -15,6 +15,6 @@ import (
 func InitBaseRouter(routerGroup *gin.RouterGroup) {
 	baseRouter := routerGroup.Group("base").Use(middleware.JWTAuth())
 	{
-		baseRouter.GET("/ping", middleware.AdminFilter(), middleware.GinLogger(global.Logger), baseApi.Ping)
+		baseRouter.GET("/ping/", middleware.AdminFilter(), middleware.GinLogger(global.Logger), baseApi.Ping)
 	}
 }
