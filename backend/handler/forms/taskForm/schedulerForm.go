@@ -11,6 +11,7 @@ package taskForm
 //
 type SchedulerForm struct {
 	ID                   uint   `forms:"ID" json:"ID" binding:"-"`
+	SchedulerName        string `forms:"SchedulerName" json:"SchedulerName" binding:"required"`
 	TaskId               uint   `forms:"TaskId" json:"TaskId" binding:"required"`
 	TaskSchedule         string `forms:"TaskSchedule" json:"TaskSchedule" binding:"required"`
 	ConfigTableQuerySQL  string `forms:"ConfigTableQuerySQL" json:"ConfigTableQuerySQL" binding:"required"`
