@@ -10,6 +10,7 @@ import (
 	"DataCompare/common/response"
 	"DataCompare/database"
 	"DataCompare/global"
+	"DataCompare/handler/customSQL"
 	"DataCompare/handler/model/taskModel"
 	"errors"
 	"github.com/gin-gonic/gin"
@@ -35,33 +36,17 @@ func GetTaskInfo(ctx *gin.Context) {
 		response.Response(ctx, http.StatusBadRequest, 400, nil, customError.BadRequestError.Error())
 		return
 	}
-	querySQl := `SELECT
-					t.*,
-					d1.link_name AS source_db_link_name,
-					d1.db_type AS source_db_type,
-					d2.link_name AS target_db_link_name ,
-					d2.db_type AS target_db_type ,
-					d3.link_name AS config_db_link_name,
-					d3.db_type AS config_db_type,
-					d4.link_name AS result_db_link_name ,
-					d4.db_type AS result_db_type 
-				FROM
-						compare_task_list t
-						LEFT JOIN compare_db_link d1 ON t.source_db_link_id = d1.id
-						LEFT JOIN compare_db_link d2 ON t.target_db_link_id = d2.id
-						LEFT JOIN compare_db_link d3 ON t.config_db_link_id = d3.id
-						LEFT JOIN compare_db_link d4 ON t.result_db_link_id = d4.id
-				where t.id = ?`
+	querySQl := customSQL.TaskInfoSQL
 	type dbTaskInfo struct {
 		taskModel.TaskList
-		SourceDbLinkName string
-		SourceDbType     string
-		TargetDbLinkName string
-		TargetDbType     string
-		ConfigDbLinkName string
-		ConfigDbType     string
-		ResultDbLinkName string
-		ResultDbType     string
+		SourceDBLinkName string
+		SourceDBType     string
+		TargetDBLinkName string
+		TargetDBType     string
+		ConfigDBLinkName string
+		ConfigDBType     string
+		ResultDBLinkName string
+		ResultDBType     string
 	}
 	var taskInfo dbTaskInfo
 	err = db.Raw(querySQl, taskId).Scan(&taskInfo).Error
@@ -88,32 +73,17 @@ func GetTaskList(ctx *gin.Context) {
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
 		return
 	}
-	querySQl := `SELECT
-					t.*,
-					d1.link_name AS source_db_link_name,
-					d1.db_type AS source_db_type,
-					d2.link_name AS target_db_link_name ,
-					d2.db_type AS target_db_type ,
-					d3.link_name AS config_db_link_name,
-					d3.db_type AS config_db_type,
-					d4.link_name AS result_db_link_name ,
-					d4.db_type AS result_db_type 
-				FROM
-						compare_task_list t
-						LEFT JOIN compare_db_link d1 ON t.source_db_link_id = d1.id
-						LEFT JOIN compare_db_link d2 ON t.target_db_link_id = d2.id
-						LEFT JOIN compare_db_link d3 ON t.config_db_link_id = d3.id
-						LEFT JOIN compare_db_link d4 ON t.result_db_link_id = d4.id`
+	querySQl := customSQL.TaskInfoListSQL
 	type dbTaskInfo struct {
 		taskModel.TaskList
-		SourceDbLinkName string
-		SourceDbType     string
-		TargetDbLinkName string
-		TargetDbType     string
-		ConfigDbLinkName string
-		ConfigDbType     string
-		ResultDbLinkName string
-		ResultDbType     string
+		SourceDBLinkName string
+		SourceDBType     string
+		TargetDBLinkName string
+		TargetDBType     string
+		ConfigDBLinkName string
+		ConfigDBType     string
+		ResultDBLinkName string
+		ResultDBType     string
 	}
 	var dbTaskInfoList []dbTaskInfo
 	err = db.Raw(querySQl).Scan(&dbTaskInfoList).Error
