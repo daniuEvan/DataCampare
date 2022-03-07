@@ -64,7 +64,6 @@ func UpdateTask(ctx *gin.Context) {
 	dbTaskModel.ResultTableName = dbTaskForm.ResultTableName
 	dbTaskModel.ConfigTableOwner = dbTaskForm.ConfigTableOwner
 	dbTaskModel.ConfigTableName = dbTaskForm.ConfigTableName
-	dbTaskModel.TaskConcurrent = dbTaskForm.TaskConcurrent
 	dbTaskModel.Desc = dbTaskForm.Desc
 	err = db.Save(&dbTaskModel).Error
 	if err != nil {

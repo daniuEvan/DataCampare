@@ -20,6 +20,7 @@ type SchedulerList struct {
 	ResultTableInitSQL   string `gorm:"type:text;not null;comment:结果表初始化sql"`
 	SourceTableQuerySQL  string `gorm:"type:text;not null;comment:源端表查询sql"`
 	TargetTableQuerySQL  string `gorm:"type:text;not null;comment:目标表查询sql"`
+	TaskConcurrent       uint   `gorm:"type:int;default:1;comment:任务并发"`
 	SchedulerStatus      int    `gorm:"type:int;not null;comment:任务状态0-启动,1-禁用"`
 	Desc                 string `gorm:"type:text"`
 }

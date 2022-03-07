@@ -19,5 +19,6 @@ type SchedulerForm struct {
 	SourceTableQuerySQL  string `forms:"SourceTableQuerySQL" json:"SourceTableQuerySQL" binding:"required"`
 	TargetTableQuerySQL  string `forms:"TargetTableQuerySQL" json:"TargetTableQuerySQL" binding:"required"`
 	SchedulerStatus      int    `forms:"SchedulerStatus" json:"SchedulerStatus" binding:"required,gte=0,lte=1"`
+	TaskConcurrent       uint   `forms:"TaskConcurrent" json:"TaskConcurrent" binding:"required,gte=1"`
 	Desc                 string `forms:"Desc" json:"Desc"`
 }

@@ -3,22 +3,31 @@
     <el-col :span="14" :offset="4">
       <el-form ref="form" label-width="auto"           label-suffix=" : " :disabled="true" size="mini">
         <el-form-item label="任务名称">
-          <el-input class="input-item" :placeholder="taskInfo['LinkName']"></el-input>
+          <el-input class="input-item" :placeholder="taskInfo['TaskName']"></el-input>
         </el-form-item>
-        <el-form-item label="源端数据库类型">
-          <el-input class="input-item" :placeholder="taskInfo['DBType']"></el-input>
+        <el-form-item label="源端数据库连接">
+          <el-input class="input-item" :placeholder="taskInfo['SourceDbLinkName']"></el-input>
         </el-form-item>
-        <el-form-item label="源端数据库名称">
-          <el-input class="input-item" :placeholder="taskInfo['DBHost']"></el-input>
+        <el-form-item label="目标端数据库连接">
+          <el-input class="input-item" :placeholder="taskInfo['TargetDbLinkName']"></el-input>
         </el-form-item>
-        <el-form-item label="目标端数据库类型">
-          <el-input class="input-item" :placeholder="taskInfo['DBPort']"></el-input>
+        <el-form-item label="配置表数据库连接">
+          <el-input class="input-item" :placeholder="taskInfo['ConfigDbLinkName']"></el-input>
         </el-form-item>
-        <el-form-item label="目标端数据库名称">
-          <el-input class="input-item" :placeholder="taskInfo['DBName']"></el-input>
+        <el-form-item label="配置表owner">
+          <el-input class="input-item" :placeholder="taskInfo['ConfigTableOwner']"></el-input>
         </el-form-item>
-        <el-form-item label="用户名">
-          <el-input class="input-item" :placeholder="taskInfo['DBUsername']"></el-input>
+        <el-form-item label="配置表table">
+          <el-input class="input-item" :placeholder="taskInfo['ConfigTableName']"></el-input>
+        </el-form-item>
+        <el-form-item label="结果表数据库连接">
+          <el-input class="input-item" :placeholder="taskInfo['ResultDbLinkName']"></el-input>
+        </el-form-item>
+        <el-form-item label="结果表owner">
+          <el-input class="input-item" :placeholder="taskInfo['ResultTableOwner']"></el-input>
+        </el-form-item>
+        <el-form-item label="结果表table">
+          <el-input class="input-item" :placeholder="taskInfo['ResultTableName']"></el-input>
         </el-form-item>
         <el-form-item label="创建日期">
           <el-input class="input-item" :placeholder="taskInfo['CreatedAt']"></el-input>

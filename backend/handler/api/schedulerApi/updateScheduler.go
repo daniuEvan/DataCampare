@@ -63,6 +63,7 @@ func UpdateScheduler(ctx *gin.Context) {
 	dbSchedulerModel.SourceTableQuerySQL = dbSchedulerForm.SourceTableQuerySQL
 	dbSchedulerModel.TargetTableQuerySQL = dbSchedulerForm.TargetTableQuerySQL
 	dbSchedulerModel.SchedulerStatus = dbSchedulerForm.SchedulerStatus
+	dbSchedulerModel.TaskConcurrent = dbSchedulerForm.TaskConcurrent
 	dbSchedulerModel.Desc = dbSchedulerForm.Desc
 	err = db.Save(&dbSchedulerModel).Error
 	if err != nil {

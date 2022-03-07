@@ -20,6 +20,5 @@ type TaskForm struct {
 	ResultTableName  string `forms:"ResultTableName" json:"ResultTableName" binding:"required"`
 	ConfigTableOwner string `forms:"ConfigTableOwner" json:"ConfigTableOwner" binding:"required"`
 	ConfigTableName  string `forms:"ConfigTableName" json:"ConfigTableName" binding:"required"`
-	TaskConcurrent   uint   `forms:"TaskConcurrent" json:"TaskConcurrent" binding:"required,gte=1"`
 	Desc             string `forms:"Desc" json:"Desc"`
 }
