@@ -5,35 +5,68 @@
           :model=" taskEditor"
           :rules="rules"
           ref="taskEditor"
-          label-width="120px"
+          label-width="160px"
           label-suffix=" : " size="mini"
       >
-        <el-form-item prop="LinkName" label="连接名称">
-          <el-input class="input-item" v-model="taskEditor['LinkName']"></el-input>
+        <el-form-item prop="TaskName" label="任务名称">
+          <el-input class="input-item" v-model="taskEditor['TaskName']"></el-input>
         </el-form-item>
-        <el-form-item prop="DBType" label="数据库类型">
-          <el-select v-model="taskEditor['DBType']" placeholder="请选择数据库类型">
-            <el-option v-for="item in dbTypeArr" :key="item" :label="item"
-                       :value="item"></el-option>
+        <el-form-item prop="SourceDBLinkId" label="源端数据库连接">
+          <el-select v-model="taskEditor['SourceDBLinkId']" placeholder="请选择数据库连接">
+            <el-option v-for="item in dbLinkInfo" :key="item['LinkName']+'source'" :label="item['LinkName']"
+                       :value="item['ID']">
+              <span style="float: left;margin-right: 2px"><img style="width: 10px" class="input-db-logo"
+                                                               :src="dbLogo[item['DBType']]" alt=""></span>
+              <span style="float: left; color: #8492a6; font-size: 13px">{{ item['LinkName'] }}</span>
+            </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item prop="DBHost" label="主机地址">
-          <el-input class="input-item" v-model="taskEditor['DBHost']"></el-input>
+        <el-form-item prop="TargetDBLinkId" label="目标端数据库连接">
+          <el-select v-model="taskEditor['TargetDBLinkId']" placeholder="请选择数据库连接">
+            <el-option v-for="item in dbLinkInfo" :key="item['LinkName']+'target'" :label="item['LinkName']"
+                       :value="item['ID']">
+              <span style="float: left;margin-right: 2px"><img style="width: 10px" class="input-db-logo"
+                                                               :src="dbLogo[item['DBType']]" alt=""></span>
+              <span style="float: left; color: #8492a6; font-size: 13px">{{ item['LinkName'] }}</span>
+            </el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item prop="DBPort" label="端口">
-          <el-input class="input-item" v-model.number="taskEditor['DBPort']"></el-input>
+        <el-form-item prop="ConfigDBLinkId" label="配置表数据库连接">
+          <el-select v-model="taskEditor['ConfigDBLinkId']" placeholder="请选择数据库连接">
+            <el-option v-for="item in dbLinkInfo" :key="item['LinkName']+'config'" :label="item['LinkName']"
+                       :value="item['ID']">
+              <span style="float: left;margin-right: 2px"><img style="width: 10px" class="input-db-logo"
+                                                               :src="dbLogo[item['DBType']]" alt=""></span>
+              <span style="float: left; color: #8492a6; font-size: 13px">{{ item['LinkName'] }}</span>
+            </el-option>
+          </el-select>
         </el-form-item>
-        <el-form-item prop="DBName" label="数据库">
-          <el-input class="input-item" v-model="taskEditor['DBName']"></el-input>
+        <el-form-item prop="ConfigTableOwner" label="配置表owner">
+          <el-input class="input-item" v-model="taskEditor['ConfigTableOwner']"></el-input>
         </el-form-item>
-        <el-form-item prop="DBUsername" label="用户名">
-          <el-input class="input-item" v-model="taskEditor['DBUsername']"></el-input>
+        <el-form-item prop="ConfigTableName" label="配置表table">
+          <el-input class="input-item" v-model="taskEditor['ConfigTableName']"></el-input>
         </el-form-item>
-        <el-form-item label="密码" prop="DBPassword">
-          <el-input show-password class="input-item" v-model="taskEditor['DBPassword']"></el-input>
+        <el-form-item prop="ResultDBLinkId" label="结果表数据库连接">
+          <el-select v-model="taskEditor['ResultDBLinkId']" placeholder="请选择数据库连接">
+            <el-option v-for="item in dbLinkInfo" :key="item['LinkName']+'result'" :label="item['LinkName']"
+                       :value="item['ID']">
+              <span style="float: left;margin-right: 2px"><img style="width: 10px" class="input-db-logo"
+                                                               :src="dbLogo[item['DBType']]" alt=""></span>
+              <span style="float: left; color: #8492a6; font-size: 13px">{{ item['LinkName'] }}</span>
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item prop="ResultTableOwner" label="结果表owner">
+          <el-input class="input-item" v-model="taskEditor['ResultTableOwner']"></el-input>
+        </el-form-item>
+        <el-form-item prop="ResultTableName" label="结果表table">
+          <el-input class="input-item" v-model="taskEditor['ResultTableName']"></el-input>
+        </el-form-item>
+        <el-form-item label="描述信息" v-show="false">
+          <el-input class="input-item" type="textarea" :placeholder="taskEditor['Desc']"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="testTask('taskEditor')">测试</el-button>
           <el-button type="primary" @click="submitForm('taskEditor')">保存</el-button>
           <el-button @click="cancel()">取消</el-button>
         </el-form-item>
@@ -45,10 +78,11 @@
 
 <script>
 import request from "@/utils/request";
+import storageService from "@/service/storageService";
 
 export default {
   name: "TaskEdit",
-  props: ["taskEditor", "getTask", "toDefaultShow"],
+  props: ["taskEditor", "getTask", "toDefaultShow", "dbLogo"],
   data() {
     return {
       dbTypeArr: [
@@ -58,17 +92,17 @@ export default {
         "postgres",
       ],
       rules: {
-        LinkName: [{required: true, message: '连接名称不能为空', trigger: "blur"}],
-        DBType: [{required: true, message: '数据库类型不能为空', trigger: "blur"}],
-        DBHost: [{required: true, message: '主机地址不能为空', trigger: "blur"}],
-        DBPort: [{required: true, type: "number", message: '正确输入端口号', trigger: "blur"}],
-        DBName: [{required: true, message: '数据库不能为空', trigger: "blur"}],
-        DBUsername: [{required: true, message: '用户名不能为空', trigger: "blur"}],
-        DBPassword: [
-          {required: true, message: '密码不能为空', trigger: "blur"},
-          {min: 6, max: 18, message: '长度在 6 到 18 个字符', trigger: "blur"}
-        ]
-      }
+        TaskName: [{required: true, message: '不能为空', trigger: "blur"}],
+        SourceDBLinkId: [{required: true, message: '不能为空', trigger: "blur"}],
+        TargetDBLinkId: [{required: true, message: '不能为空', trigger: "blur"}],
+        ConfigDBLinkId: [{required: true, message: '不能为空', trigger: "blur"}],
+        ConfigTableOwner: [{required: true, message: '不能为空', trigger: "blur"}],
+        ConfigTableName: [{required: true, message: '不能为空', trigger: "blur"}],
+        ResultDBLinkId: [{required: true, message: '不能为空', trigger: "blur"}],
+        ResultTableOwner: [{required: true, message: '不能为空', trigger: "blur"}],
+        ResultTableName: [{required: true, message: '不能为空', trigger: "blur"}],
+      },
+      dbLinkInfo: [],
     };
   },
   methods: {
@@ -76,19 +110,19 @@ export default {
       let _this = this
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          request.put("/db_link/", _this.taskEditor)
+          request.put("/task/", _this.taskEditor)
               .then(function (response) {
                 if (response.data.code !== 200) {
-                  _this.$message.error({message: '数据库连接更新失败' + response.data.msg, center: true});
+                  _this.$message.error({message: '任务更新失败' + response.data.msg, center: true});
                   return null
                 }
-                _this.$message.success({message: '数据库连接更新成功', center: true});
+                _this.$message.success({message: '任务更新成功', center: true});
                 _this.getTask()
                 _this.toDefaultShow()
               })
               .catch(function (err) {
                 console.log(err);
-                _this.$message.error({message: '数据库连接更新失败', center: true});
+                _this.$message.error({message: '任务更新失败', center: true});
               })
         } else {
           this.$message.error("表单校验不通过")
@@ -99,28 +133,12 @@ export default {
     cancel() {
       this.toDefaultShow()
     },
-    testTask(formName) {
-      let _this = this
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          request.post("/db_link/ping/", _this.taskEditor)
-              .then(function (response) {
-                if (response.data.code !== 200) {
-                  _this.$message.error({message: '测试连接失败' + response.data.msg, center: true});
-                  return null
-                }
-                _this.$message.success({message: '测试连接成功', center: true});
-              })
-              .catch(function (err) {
-                console.log(err);
-                _this.$message.error({message: '测试连接失败', center: true});
-              })
-        } else {
-          this.$message.error("表单校验不通过")
-          return false;
-        }
-      });
-    }
+    getDBLinkInfo() {
+      this.dbLinkInfo = JSON.parse(storageService.get(storageService.DB_LINK_LIST))
+    },
+  },
+  mounted() {
+    this.getDBLinkInfo()
   }
 }
 </script>

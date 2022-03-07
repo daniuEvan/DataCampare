@@ -7,29 +7,32 @@
           <el-button @click="clickDBLinkAdd()" style="float: right; padding: 3px" type="text"><i
               class="el-icon-paperclip">新建连接</i></el-button>
         </div>
-        <div v-for="o in dbLinkInfoArr.length" :key="o" class="text item">
-          <div class="db-icon" @click="clickDBLink(o)"><img style="width: 18px;padding:2px 5px 0 0"
-                                                            :src="dbLogo[dbLinkInfoArr[o - 1]['DBType']]"
-                                                            alt="">
+        <div v-if="dbLinkInfoArr !==null">
+          <div v-for="o in dbLinkInfoArr.length" :key="o" class="text item">
+            <div class="db-icon" @click="clickDBLink(o)"><img style="width: 18px;padding:2px 5px 0 0"
+                                                              :src="dbLogo[dbLinkInfoArr[o - 1]['DBType']]"
+                                                              alt="">
+            </div>
+            <div class="db-name" @click="clickDBLink(o)">{{ dbLinkInfoArr[o - 1]["LinkName"] }}
+            </div>
+            <div class="db-delete" @click="clickDBLinkDelete(dbLinkInfoArr[o - 1]['ID'])" style="color: red"><i
+                class="el-icon-delete"></i></div>
+            <div class="db-edit" @click="clickDBLinkEdit(dbLinkInfoArr[o - 1])" style="color: #409EFF"><i
+                class="el-icon-edit"></i></div>
           </div>
-          <div class="db-name" @click="clickDBLink(o)">{{ dbLinkInfoArr[o - 1]["LinkName"] }}
-          </div>
-          <div class="db-delete" @click="clickDBLinkDelete(dbLinkInfoArr[o - 1]['ID'])" style="color: red"><i
-              class="el-icon-delete"></i></div>
-          <div class="db-edit" @click="clickDBLinkEdit(dbLinkInfoArr[o - 1])" style="color: #409EFF"><i
-              class="el-icon-edit"></i></div>
+
         </div>
       </el-card>
     </el-aside>
     <el-container>
       <el-header>{{ dbLinkName }}</el-header>
-      <el-main v-show="isShow.dbLinkInfoMsgShow">
+      <el-main v-if="isShow.dbLinkInfoMsgShow">
         <DBLinkMsg :dbLinkInfo="dbLinkInfo"/>
       </el-main>
-      <el-main v-show="isShow.dbLinkInfoFormShow">
+      <el-main v-if="isShow.dbLinkInfoFormShow">
         <DBLinkEdit :dbLinkEditor="dbLinkEditor" :toDefaultShow="toDefaultShow" :getDBLink="getDBLink"/>
       </el-main>
-      <el-main v-show="isShow.dbLinkCreateInfoFormShow">
+      <el-main v-if="isShow.dbLinkCreateInfoFormShow">
         <DBLinkCreate :toDefaultShow="toDefaultShow" :getDBLink="getDBLink"/>
       </el-main>
     </el-container>
@@ -41,6 +44,7 @@ import DBLinkMsg from "@/views/dbLink/DBLinkMsg";
 import request from "@/utils/request";
 import DBLinkEdit from "@/views/dbLink/DBLinkEdit";
 import DBLinkCreate from "@/views/dbLink/DBLinkCreate";
+import storageService from "@/service/storageService";
 
 export default {
   name: "DBLinkIndex",
@@ -76,8 +80,7 @@ export default {
         this.isShow.dbLinkInfoMsgShow = false
         this.isShow.dbLinkCreateInfoFormShow = false
         return null
-      }
-      else if (item === "create") {
+      } else if (item === "create") {
         this.isShow.dbLinkInfoFormShow = false
         this.isShow.dbLinkInfoMsgShow = false
         this.isShow.dbLinkCreateInfoFormShow = true
@@ -103,13 +106,19 @@ export default {
               return null
             }
             _this.dbLinkInfoArr = response.data.data
+            if (_this.dbLinkInfoArr.length <= 0) {
+              _this.dbLinkInfo = {}
+              _this.dbLinkName = ""
+              return null
+            }
             _this.dbLinkInfo = _this.dbLinkInfoArr[0]
             _this.dbLinkName = _this.dbLinkInfo["LinkName"]
+            // 存入浏览器
+            storageService.set(storageService.DB_LINK_LIST, JSON.stringify(response.data.data))
           })
           .catch(function (err) {
             _this.$message.error(err)
           })
-
     },
     clickDBLinkDelete(id) {
       let _this = this
@@ -137,8 +146,7 @@ export default {
     clickDBLinkEdit(item) {
       this.dbLinkName = item["LinkName"]
       this.toDefaultShow("edit")
-      this.dbLinkEditor = item
-
+      this.dbLinkEditor = JSON.parse(JSON.stringify(item)) // 深拷贝
     },
     clickDBLinkAdd() {
       this.dbLinkName = "新建数据库连接"

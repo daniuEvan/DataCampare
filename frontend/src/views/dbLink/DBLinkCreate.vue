@@ -98,6 +98,7 @@ export default {
       });
     },
     cancel() {
+      this.dbLinkCreate = {}
       this.toDefaultShow()
     },
     testDBLink(formName) {

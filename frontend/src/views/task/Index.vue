@@ -7,30 +7,32 @@
           <el-button @click="clickTaskAdd()" style="float: right; padding: 3px" type="text"><i
               class="el-icon-paperclip">新建任务</i></el-button>
         </div>
-        <div v-for="o in taskInfoArr.length" :key="o" class="text item">
-          <div class="db-icon" @click="clickTask(o)"><img style="width: 18px;padding:2px 5px 0 0"
+        <div v-if="taskInfoArr !==null">
+          <div v-for="o in taskInfoArr.length" :key="o" class="text item">
+            <div class="db-icon" @click="clickTask(o)"><img style="width: 18px;padding:2px 5px 0 0"
                                                             :src="taskLogo"
                                                             alt="">
+            </div>
+            <div class="db-name" @click="clickTask(o)">{{ taskInfoArr[o - 1]["TaskName"] }}
+            </div>
+            <div class="db-delete" @click="clickTaskDelete(taskInfoArr[o - 1]['ID'])" style="color: red"><i
+                class="el-icon-delete"></i></div>
+            <div class="db-edit" @click="clickTaskEdit(taskInfoArr[o - 1])" style="color: #409EFF"><i
+                class="el-icon-edit"></i></div>
           </div>
-          <div class="db-name" @click="clickTask(o)">{{ taskInfoArr[o - 1]["TaskName"] }}
-          </div>
-          <div class="db-delete" @click="clickTaskDelete(taskInfoArr[o - 1]['ID'])" style="color: red"><i
-              class="el-icon-delete"></i></div>
-          <div class="db-edit" @click="clickTaskEdit(taskInfoArr[o - 1])" style="color: #409EFF"><i
-              class="el-icon-edit"></i></div>
         </div>
       </el-card>
     </el-aside>
     <el-container>
       <el-header>{{ taskName }}</el-header>
-      <el-main v-show="isShow.taskInfoMsgShow">
+      <el-main v-if="isShow.taskInfoMsgShow">
         <TaskMsg :taskInfo="taskInfo" :dbLogo="dbLogo"/>
       </el-main>
-      <el-main v-show="isShow.taskInfoFormShow">
-        <TaskEdit :taskEditor="taskEditor" :toDefaultShow="toDefaultShow" :getTask="getTask"/>
+      <el-main v-if="isShow.taskInfoFormShow">
+        <TaskEdit :taskEditor="taskEditor" :dbLogo="dbLogo" :toDefaultShow="toDefaultShow" :getTask="getTask"/>
       </el-main>
-      <el-main v-show="isShow.taskCreateInfoFormShow">
-        <TaskCreate :toDefaultShow="toDefaultShow" :getTask="getTask"/>
+      <el-main v-if="isShow.taskCreateInfoFormShow">
+        <TaskCreate :toDefaultShow="toDefaultShow" :dbLogo="dbLogo" :getTask="getTask"/>
       </el-main>
     </el-container>
   </el-container>
@@ -77,8 +79,7 @@ export default {
         this.isShow.taskInfoMsgShow = false
         this.isShow.taskCreateInfoFormShow = false
         return null
-      }
-      else if (item === "create") {
+      } else if (item === "create") {
         this.isShow.taskInfoFormShow = false
         this.isShow.taskInfoMsgShow = false
         this.isShow.taskCreateInfoFormShow = true
@@ -104,22 +105,26 @@ export default {
               return null
             }
             _this.taskInfoArr = response.data.data
+            if (_this.taskInfoArr === null) {
+              _this.taskInfo = {}
+              _this.taskName = ""
+              return null
+            }
             _this.taskInfo = _this.taskInfoArr[0]
             _this.taskName = _this.taskInfo["TaskName"]
           })
           .catch(function (err) {
             _this.$message.error(err)
           })
-
     },
     clickTaskDelete(id) {
       let _this = this
-      this.$confirm('此操作将永久删除此链接, 是否继续?', '提示', {
+      this.$confirm('此操作将永久删除此任务(不会删除调度内容), 是否继续?', '提示', {
         confirmButtonText: '确定删除',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        request.delete(`/db_link/${id}/`)
+        request.delete(`/task/${id}/`)
             .then(function (response) {
               if (response.data.code !== 200) {
                 _this.$message.error({message: '连接删除失败' + response.data.msg,});
@@ -127,6 +132,7 @@ export default {
               }
               _this.$message.success({message: '连接删除成功',});
               _this.getTask()
+              _this.toDefaultShow()
             })
             .catch(function (err) {
               console.log(err);
@@ -138,11 +144,10 @@ export default {
     clickTaskEdit(item) {
       this.taskName = item["TaskName"]
       this.toDefaultShow("edit")
-      this.taskEditor = item
-
+      this.taskEditor = JSON.parse(JSON.stringify(item))
     },
     clickTaskAdd() {
-      this.taskName = "新建数据库连接"
+      this.taskName = "新建任务"
       this.toDefaultShow("create")
     },
   },

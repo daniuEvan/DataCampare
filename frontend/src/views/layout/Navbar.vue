@@ -18,6 +18,9 @@
 </template>
 
 <script>
+import request from "@/utils/request";
+import storageService from "@/service/storageService";
+
 export default {
   name: "Navbar",
   data() {
@@ -40,6 +43,18 @@ export default {
         _this.activeIndex = "taskCenter"
       }
     }, 100);
+    request.get('/db_link/list/')
+        .then(function (response) {
+          if (response.data.code !== 200) {
+            _this.$message.error(response.data.msg)
+            return null
+          }
+          // 存入浏览器
+          storageService.set(storageService.DB_LINK_LIST, JSON.stringify(response.data.data))
+        })
+        .catch(function (err) {
+          _this.$message.error(err)
+        })
 
   }
 }
