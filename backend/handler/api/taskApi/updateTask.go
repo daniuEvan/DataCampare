@@ -56,8 +56,10 @@ func UpdateTask(ctx *gin.Context) {
 		return
 	}
 	dbTaskModel.TaskName = dbTaskForm.TaskName
+	dbTaskModel.ConfigDBLinkId = dbTaskForm.ConfigDBLinkId
 	dbTaskModel.SourceDBLinkId = dbTaskForm.SourceDBLinkId
 	dbTaskModel.TargetDBLinkId = dbTaskForm.TargetDBLinkId
+	dbTaskModel.ResultDBLinkId = dbTaskForm.ResultDBLinkId
 	dbTaskModel.ResultTableOwner = dbTaskForm.ResultTableOwner
 	dbTaskModel.ResultTableName = dbTaskForm.ResultTableName
 	dbTaskModel.ConfigTableOwner = dbTaskForm.ConfigTableOwner
