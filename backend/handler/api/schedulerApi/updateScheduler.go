@@ -55,6 +55,7 @@ func UpdateScheduler(ctx *gin.Context) {
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
 		return
 	}
+	dbSchedulerModel.SchedulerName = dbSchedulerForm.SchedulerName
 	dbSchedulerModel.TaskId = dbSchedulerForm.TaskId
 	dbSchedulerModel.TaskSchedule = dbSchedulerForm.TaskSchedule
 	dbSchedulerModel.ConfigTableQuerySQL = dbSchedulerForm.ConfigTableQuerySQL
