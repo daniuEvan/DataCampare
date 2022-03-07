@@ -24,7 +24,7 @@
     <el-container>
       <el-header>{{ taskName }}</el-header>
       <el-main v-show="isShow.taskInfoMsgShow">
-        <TaskMsg :taskInfo="taskInfo"/>
+        <TaskMsg :taskInfo="taskInfo" :dbLogo="dbLogo"/>
       </el-main>
       <el-main v-show="isShow.taskInfoFormShow">
         <TaskEdit :taskEditor="taskEditor" :toDefaultShow="toDefaultShow" :getTask="getTask"/>
@@ -54,6 +54,12 @@ export default {
       taskInfoArr: [],
       taskName: "",
       taskInfo: {},
+      dbLogo: {
+        "mysql": require("@/assets/databaseLogo/mysql.png"),
+        "vertica": require("@/assets/databaseLogo/vertica.png"),
+        "oracle": require("@/assets/databaseLogo/oracle.png"),
+        "postgres": require("@/assets/databaseLogo/postgres.png"),
+      },
       taskLogo: require("@/assets/databaseLogo/task.png"),
       taskEditor: {},
     }
