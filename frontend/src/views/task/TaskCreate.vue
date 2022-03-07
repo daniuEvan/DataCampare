@@ -94,16 +94,15 @@ export default {
       ],
       taskCreate: {},
       rules: {
-        LinkName: [{required: true, message: '连接名称不能为空', trigger: "blur"}],
-        DBType: [{required: true, message: '数据库类型不能为空', trigger: "blur"}],
-        DBHost: [{required: true, message: '主机地址不能为空', trigger: "blur"}],
-        DBPort: [{required: true, type: "number", message: '正确输入端口号', trigger: "blur"}],
-        DBName: [{required: true, message: '数据库不能为空', trigger: "blur"}],
-        DBUsername: [{required: true, message: '用户名不能为空', trigger: "blur"}],
-        DBPassword: [
-          {required: true, message: '密码不能为空', trigger: "blur"},
-          {min: 6, max: 18, message: '长度在 6 到 18 个字符', trigger: "blur"}
-        ]
+        TaskName: [{required: true, message: '不能为空', trigger: "blur"}],
+        SourceDBLinkId: [{required: true, message: '不能为空', trigger: "blur"}],
+        TargetDBLinkId: [{required: true, message: '不能为空', trigger: "blur"}],
+        ConfigDBLinkId: [{required: true, message: '不能为空', trigger: "blur"}],
+        ConfigTableOwner: [{required: true, message: '不能为空', trigger: "blur"}],
+        ConfigTableName: [{required: true, message: '不能为空', trigger: "blur"}],
+        ResultDBLinkId: [{required: true, message: '不能为空', trigger: "blur"}],
+        ResultTableOwner: [{required: true, message: '不能为空', trigger: "blur"}],
+        ResultTableName: [{required: true, message: '不能为空', trigger: "blur"}],
       },
       dbLinkInfo: [],
     };
