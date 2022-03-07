@@ -32,6 +32,38 @@ export default {
     handleSelect(key) {
       this.activeIndex = key
       this.$router.push({name: key})
+    },
+    storeDBLinkInfo(){
+      let _this = this;
+      request.get('/db_link/list/')
+          .then(function (response) {
+            if (response.data.code !== 200) {
+              _this.$message.error(response.data.msg)
+              return null
+            }
+            // 存入浏览器
+            storageService.set(storageService.DB_LINK_LIST, JSON.stringify(response.data.data))
+          })
+          .catch(function (err) {
+            _this.$message.error(err)
+          })
+
+    },
+    storeTaskInfo(){
+      let _this = this;
+      request.get('/task/list/')
+          .then(function (response) {
+            if (response.data.code !== 200) {
+              _this.$message.error(response.data.msg)
+              return null
+            }
+            // 存入浏览器
+            storageService.set(storageService.TASK_INFO_LIST, JSON.stringify(response.data.data))
+          })
+          .catch(function (err) {
+            _this.$message.error(err)
+          })
+
     }
   },
   mounted: function () {
@@ -43,19 +75,8 @@ export default {
         _this.activeIndex = "taskCenter"
       }
     }, 100);
-    request.get('/db_link/list/')
-        .then(function (response) {
-          if (response.data.code !== 200) {
-            _this.$message.error(response.data.msg)
-            return null
-          }
-          // 存入浏览器
-          storageService.set(storageService.DB_LINK_LIST, JSON.stringify(response.data.data))
-        })
-        .catch(function (err) {
-          _this.$message.error(err)
-        })
-
+    this.storeDBLinkInfo()
+    this.storeTaskInfo()
   }
 }
 </script>

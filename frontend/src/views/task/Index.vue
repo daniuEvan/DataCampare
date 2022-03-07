@@ -43,6 +43,7 @@ import TaskMsg from "@/views/task/TaskMsg";
 import request from "@/utils/request";
 import TaskEdit from "@/views/task/TaskEdit";
 import TaskCreate from "@/views/task/TaskCreate";
+import storageService from "@/service/storageService";
 
 export default {
   name: "TaskIndex",
@@ -112,6 +113,8 @@ export default {
             }
             _this.taskInfo = _this.taskInfoArr[0]
             _this.taskName = _this.taskInfo["TaskName"]
+            // 存入浏览器
+            storageService.set(storageService.TASK_INFO_LIST, JSON.stringify(response.data.data))
           })
           .catch(function (err) {
             _this.$message.error(err)

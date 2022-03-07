@@ -116,17 +116,16 @@ export default {
           request.post("/task/", _this.taskCreate)
               .then(function (response) {
                 if (response.data.code !== 200) {
-                  _this.$message.error({center: true, message: '创建失败' + response.data.msg,});
+                  _this.$message.error({center: true, message: '任务创建失败' + response.data.msg,});
                   return null
                 }
-                _this.$message.success({center: true, message: '创建成功',});
+                _this.$message.success({center: true, message: '任务创建成功',});
                 _this.getTask()
                 _this.toDefaultShow()
-                _this.taskCreate = {}
               })
               .catch(function (err) {
                 console.log(err);
-                _this.$message.error({center: true, message: '创建'});
+                _this.$message.error({center: true, message: '任务创建失败'});
               })
         } else {
           this.$message.error("表单校验不通过")
