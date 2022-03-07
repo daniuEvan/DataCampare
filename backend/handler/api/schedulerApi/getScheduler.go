@@ -35,9 +35,15 @@ func GetSchedulerInfo(ctx *gin.Context) {
 		response.Response(ctx, http.StatusBadRequest, 400, nil, customError.BadRequestError.Error())
 		return
 	}
-	var schedulerModel taskModel.SchedulerList
-	err = db.Where("id = ? ", schedulerId).First(&schedulerModel).Error
-	if errors.Is(err, gorm.ErrRecordNotFound) || schedulerModel.ID == 0 {
+	type SchedulerRes struct {
+		taskModel.SchedulerList
+		TaskName string
+	}
+	var schedulerRes SchedulerRes
+	err = db.Model(&taskModel.SchedulerList{}).Select("compare_scheduler_list.*", "t.task_name").Joins(
+		"left join compare_task_list t on  compare_scheduler_list.task_id =  t.id ",
+	).Where("compare_scheduler_list.id = ? ", schedulerId).Scan(&schedulerRes).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) || schedulerRes.ID == 0 {
 		response.Response(ctx, http.StatusNotFound, 422, nil, customError.UnprocessableEntityError.Error())
 		return
 	} else if err != nil {
@@ -45,7 +51,7 @@ func GetSchedulerInfo(ctx *gin.Context) {
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
 		return
 	}
-	response.Success(ctx, schedulerModel, "获取调度信息成功")
+	response.Success(ctx, schedulerRes, "获取调度信息成功")
 }
 
 //
@@ -60,12 +66,18 @@ func GetSchedulerList(ctx *gin.Context) {
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
 		return
 	}
-	var dbSchedulerList []taskModel.SchedulerList
-	err = db.Find(&dbSchedulerList).Error
+	type SchedulerRes struct {
+		taskModel.SchedulerList
+		TaskName string
+	}
+	var schedulerRes []SchedulerRes
+	err = db.Model(&taskModel.SchedulerList{}).Select("compare_scheduler_list.*", "t.task_name").Joins(
+		"left join compare_task_list t on  compare_scheduler_list.task_id =  t.id ",
+	).Scan(&schedulerRes).Error
 	if err != nil {
 		global.Logger.Error("获取调度信息", zap.String("msg", err.Error()))
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
 		return
 	}
-	response.Success(ctx, dbSchedulerList, "获取调度信息列表成功")
+	response.Success(ctx, schedulerRes, "获取调度信息列表成功")
 }
