@@ -2,19 +2,19 @@
   <el-row :gutter="20">
     <el-col :span="14" :offset="4">
       <el-form ref="form" label-width="auto"           label-suffix=" : " :disabled="true" size="mini">
-        <el-form-item label="连接名称">
+        <el-form-item label="任务名称">
           <el-input class="input-item" :placeholder="taskInfo['LinkName']"></el-input>
         </el-form-item>
-        <el-form-item label="数据库类型">
+        <el-form-item label="源端数据库类型">
           <el-input class="input-item" :placeholder="taskInfo['DBType']"></el-input>
         </el-form-item>
-        <el-form-item label="主机地址">
+        <el-form-item label="源端数据库名称">
           <el-input class="input-item" :placeholder="taskInfo['DBHost']"></el-input>
         </el-form-item>
-        <el-form-item label="端口">
+        <el-form-item label="目标端数据库类型">
           <el-input class="input-item" :placeholder="taskInfo['DBPort']"></el-input>
         </el-form-item>
-        <el-form-item label="数据库">
+        <el-form-item label="目标端数据库名称">
           <el-input class="input-item" :placeholder="taskInfo['DBName']"></el-input>
         </el-form-item>
         <el-form-item label="用户名">

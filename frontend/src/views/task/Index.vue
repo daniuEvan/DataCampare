@@ -12,7 +12,7 @@
                                                             :src="taskLogo"
                                                             alt="">
           </div>
-          <div class="db-name" @click="clickTask(o)">{{ taskInfoArr[o - 1]["LinkName"] }}
+          <div class="db-name" @click="clickTask(o)">{{ taskInfoArr[o - 1]["TaskName"] }}
           </div>
           <div class="db-delete" @click="clickTaskDelete(taskInfoArr[o - 1]['ID'])" style="color: red"><i
               class="el-icon-delete"></i></div>
@@ -87,11 +87,11 @@ export default {
       this.toDefaultShow()
       // 点击更改值
       this.taskInfo = this.taskInfoArr[item - 1]
-      this.taskName = this.taskInfo["LinkName"]
+      this.taskName = this.taskInfo["TaskName"]
     },
     getTask() {
       let _this = this
-      request.get('/db_link/list/')
+      request.get('/task/list/')
           .then(function (response) {
             if (response.data.code !== 200) {
               _this.$message.error(response.data.msg)
@@ -99,7 +99,7 @@ export default {
             }
             _this.taskInfoArr = response.data.data
             _this.taskInfo = _this.taskInfoArr[0]
-            _this.taskName = _this.taskInfo["LinkName"]
+            _this.taskName = _this.taskInfo["TaskName"]
           })
           .catch(function (err) {
             _this.$message.error(err)
@@ -130,7 +130,7 @@ export default {
 
     },
     clickTaskEdit(item) {
-      this.taskName = item["LinkName"]
+      this.taskName = item["TaskName"]
       this.toDefaultShow("edit")
       this.taskEditor = item
 
