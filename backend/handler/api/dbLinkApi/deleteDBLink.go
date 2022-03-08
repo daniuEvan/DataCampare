@@ -40,7 +40,7 @@ func DeleteDBLink(ctx *gin.Context) {
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
 		return
 	}
-	err = db.Delete(&dbLink).Error
+	err = db.Unscoped().Delete(&dbLink).Error
 	if err != nil {
 		global.Logger.Error("删除数据库连接", zap.String("msg", err.Error()))
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())

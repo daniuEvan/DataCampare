@@ -45,7 +45,7 @@ func DeleteTask(ctx *gin.Context) {
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
 		return
 	}
-	err = db.Delete(&dbTask).Error
+	err = db.Unscoped().Delete(&dbTask).Error
 	if err != nil {
 		global.Logger.Error("删除任务", zap.String("msg", err.Error()))
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())

@@ -45,7 +45,7 @@ func DeleteScheduler(ctx *gin.Context) {
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
 		return
 	}
-	err = db.Delete(&dbScheduler).Error
+	err = db.Unscoped().Delete(&dbScheduler).Error
 	if err != nil {
 		global.Logger.Error("删除调度", zap.String("msg", err.Error()))
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())

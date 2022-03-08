@@ -12,8 +12,8 @@ import (
 // ModelsArr 所有model示例
 var ModelsArr = []interface{}{
 	//&userModel.User{},
+	&taskModel.DBLink{},
 	&taskModel.TaskList{},
 	&taskModel.TaskLog{},
 	&taskModel.SchedulerList{},
-	&taskModel.DBLink{},
 }
