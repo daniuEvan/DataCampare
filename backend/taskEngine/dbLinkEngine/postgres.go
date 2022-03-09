@@ -58,16 +58,16 @@ func (v *PostgresLink) Query(sqlStr string) (map[string]interface{}, error) {
 		return nil, err
 	}
 	columns, err := rows.Columns()
-	values := make([]interface{}, len(columns))
-	scanArgs := make([]interface{}, len(values)) //行数据
-	for i := range values {
-		scanArgs[i] = &values[i]
-	}
 	if err != nil {
 		return nil, err
 	}
 	queryValueList := make([]interface{}, 0)
 	for rows.Next() {
+		scanArgs := make([]interface{}, len(columns)) //行数据
+		for i := 0; i < len(columns); i++ {
+			var values string
+			scanArgs[i] = &values
+		}
 		err = rows.Scan(scanArgs...)
 		if err != nil {
 			//return nil, err
