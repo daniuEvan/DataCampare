@@ -57,6 +57,7 @@ func (v *OracleLink) Query(sqlStr string) (map[string]interface{}, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer rows.Close()
 	columns, err := rows.Columns()
 	if err != nil {
 		return nil, err
