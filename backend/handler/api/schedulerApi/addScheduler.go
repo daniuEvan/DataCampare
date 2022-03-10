@@ -8,11 +8,11 @@ package schedulerApi
 import (
 	"DataCompare/common/customError"
 	"DataCompare/common/response"
+	"DataCompare/common/validatorErrorHandler"
 	"DataCompare/database"
 	"DataCompare/global"
 	"DataCompare/handler/forms/taskForm"
 	"DataCompare/handler/model/taskModel"
-	"DataCompare/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
@@ -33,7 +33,7 @@ func AddScheduler(ctx *gin.Context) {
 	dbSchedulerForm := taskForm.SchedulerForm{}
 	if err := ctx.ShouldBindJSON(&dbSchedulerForm); err != nil {
 		global.Logger.Error(err.Error())
-		utils.ValidatorErrorHandler(ctx, err)
+		validatorErrorHandler.ValidatorErrorHandler(ctx, err)
 		return
 	}
 	var dbSchedulerModel taskModel.SchedulerList

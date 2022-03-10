@@ -8,6 +8,7 @@ package dbLinkApi
 import (
 	"DataCompare/common/customError"
 	"DataCompare/common/response"
+	"DataCompare/common/validatorErrorHandler"
 	"DataCompare/database"
 	"DataCompare/global"
 	"DataCompare/handler/forms/taskForm"
@@ -29,7 +30,7 @@ func UpdateDBLink(ctx *gin.Context) {
 	dbLinkForm := taskForm.DBLinkForm{}
 	if err := ctx.ShouldBindJSON(&dbLinkForm); err != nil {
 		global.Logger.Error(err.Error())
-		utils.ValidatorErrorHandler(ctx, err)
+		validatorErrorHandler.ValidatorErrorHandler(ctx, err)
 		return
 	}
 	dbLinkId := dbLinkForm.ID

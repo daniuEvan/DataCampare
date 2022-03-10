@@ -3,7 +3,7 @@
  * @desc: ...
  */
 
-package utils
+package smService
 
 import (
 	"DataCompare/global"

@@ -7,10 +7,10 @@ package smApi
 
 import (
 	"DataCompare/common/response"
+	"DataCompare/common/smService"
 	"DataCompare/database"
 	"DataCompare/global"
 	"DataCompare/handler/api/userApi"
-	"DataCompare/utils"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -42,7 +42,7 @@ func GetSmCode(ctx *gin.Context) {
 		return
 	}
 	// 获取验证码
-	smService := utils.NewSmService()
+	smService := smService.NewSmService()
 	codeJson, err := smService.SendSmCode(mobile)
 	if err != nil {
 		global.Logger.Error("获取验证码", zap.String("msg", err.Error()))

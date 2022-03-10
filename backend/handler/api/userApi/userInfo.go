@@ -7,6 +7,8 @@ package userApi
 
 import (
 	"DataCompare/common/response"
+	"DataCompare/common/smService"
+	"DataCompare/common/validatorErrorHandler"
 	"DataCompare/database"
 	"DataCompare/global"
 	"DataCompare/handler/forms/userForm"
@@ -33,7 +35,7 @@ func EditUserInfo(ctx *gin.Context) {
 	userInfoForm := userForm.UserInfoForm{}
 	if err := ctx.ShouldBindJSON(&userInfoForm); err != nil {
 		global.Logger.Error(err.Error())
-		utils.ValidatorErrorHandler(ctx, err)
+		validatorErrorHandler.ValidatorErrorHandler(ctx, err)
 		return
 	}
 	userId, ok := utils.GetCurrentUserID(ctx)
@@ -103,7 +105,7 @@ func ChangePwd(ctx *gin.Context) {
 	userPwdInfoForm := userForm.UserPwdInfoForm{}
 	if err := ctx.ShouldBindJSON(&userPwdInfoForm); err != nil {
 		global.Logger.Error(err.Error())
-		utils.ValidatorErrorHandler(ctx, err)
+		validatorErrorHandler.ValidatorErrorHandler(ctx, err)
 		return
 	}
 	mobile := userPwdInfoForm.Mobile
@@ -121,7 +123,7 @@ func ChangePwd(ctx *gin.Context) {
 		return
 	}
 	// 校验验证码
-	smService := utils.NewSmService()
+	smService := smService.NewSmService()
 	ok, err = smService.VerifySmCode(mobile, smCode)
 	if err != nil {
 		global.Logger.Error("修改密码", zap.String("msg", err.Error()))

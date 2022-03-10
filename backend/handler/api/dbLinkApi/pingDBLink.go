@@ -8,10 +8,10 @@ package dbLinkApi
 import (
 	"DataCompare/common/customError"
 	"DataCompare/common/response"
+	"DataCompare/common/validatorErrorHandler"
 	"DataCompare/global"
 	"DataCompare/handler/forms/taskForm"
 	"DataCompare/taskEngine/dbLinkEngine"
-	"DataCompare/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
@@ -21,7 +21,7 @@ func PingDBLink(ctx *gin.Context) {
 	dbLinkForm := taskForm.DBLinkForm{}
 	if err := ctx.ShouldBindJSON(&dbLinkForm); err != nil {
 		global.Logger.Error(err.Error())
-		utils.ValidatorErrorHandler(ctx, err)
+		validatorErrorHandler.ValidatorErrorHandler(ctx, err)
 		return
 	}
 	dbOptions := dbLinkEngine.DataBaseOption{

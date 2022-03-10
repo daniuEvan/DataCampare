@@ -3,7 +3,7 @@
  * @desc: ...
  */
 
-package utils
+package validatorErrorHandler
 
 import (
 	"DataCompare/global"

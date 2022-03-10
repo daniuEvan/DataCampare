@@ -8,11 +8,11 @@ package taskApi
 import (
 	"DataCompare/common/customError"
 	"DataCompare/common/response"
+	"DataCompare/common/validatorErrorHandler"
 	"DataCompare/database"
 	"DataCompare/global"
 	"DataCompare/handler/forms/taskForm"
 	"DataCompare/handler/model/taskModel"
-	"DataCompare/utils"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 	"net/http"
@@ -33,7 +33,7 @@ func AddTask(ctx *gin.Context) {
 	dbTaskForm := taskForm.TaskForm{}
 	if err := ctx.ShouldBindJSON(&dbTaskForm); err != nil {
 		global.Logger.Error(err.Error())
-		utils.ValidatorErrorHandler(ctx, err)
+		validatorErrorHandler.ValidatorErrorHandler(ctx, err)
 		return
 	}
 	var dbTaskModel taskModel.TaskList

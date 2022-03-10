@@ -7,6 +7,8 @@ package userApi
 
 import (
 	"DataCompare/common/response"
+	"DataCompare/common/smService"
+	"DataCompare/common/validatorErrorHandler"
 	"DataCompare/database"
 	"DataCompare/global"
 	"DataCompare/handler/forms/userForm"
@@ -39,7 +41,7 @@ func Register(ctx *gin.Context) {
 	registerLoginForm := userForm.RegisterForm{}
 	if err := ctx.ShouldBindJSON(&registerLoginForm); err != nil {
 		global.Logger.Error(err.Error())
-		utils.ValidatorErrorHandler(ctx, err)
+		validatorErrorHandler.ValidatorErrorHandler(ctx, err)
 		return
 	}
 	mobile := registerLoginForm.Mobile
@@ -52,7 +54,7 @@ func Register(ctx *gin.Context) {
 	smCode := registerLoginForm.VerifyCode
 	addr := registerLoginForm.Addr
 	// 校验验证码
-	smService := utils.NewSmService()
+	smService := smService.NewSmService()
 	ok, err := smService.VerifySmCode(mobile, smCode)
 	if err != nil {
 		global.Logger.Error("用户注册", zap.String("msg", err.Error()))
@@ -120,7 +122,7 @@ func PasswordLogin(ctx *gin.Context) {
 	passwordLoginForm := userForm.LoginForm{}
 	if err := ctx.ShouldBindJSON(&passwordLoginForm); err != nil {
 		global.Logger.Error(err.Error())
-		utils.ValidatorErrorHandler(ctx, err)
+		validatorErrorHandler.ValidatorErrorHandler(ctx, err)
 		return
 	}
 
@@ -169,7 +171,7 @@ func LdapLogin(ctx *gin.Context) {
 	passwordLoginForm := userForm.LoginForm{}
 	if err := ctx.ShouldBindJSON(&passwordLoginForm); err != nil {
 		global.Logger.Error(err.Error())
-		utils.ValidatorErrorHandler(ctx, err)
+		validatorErrorHandler.ValidatorErrorHandler(ctx, err)
 		return
 	}
 	// user信息
