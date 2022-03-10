@@ -27,9 +27,9 @@
           <el-form-item label="配置表查询sql">
             <el-input class="input-item" type="textarea" :readonly="true" v-model="schedulerInfo['ConfigTableQuerySQL']"></el-input>
           </el-form-item>
-          <el-form-item label="结果表表查询sql">
+          <el-form-item label="结果表插入sql">
             <el-input class="input-item" type="textarea"
-                      :readonly="true" v-model="schedulerInfo['ResultTableCreateSQL']"></el-input>
+                      :readonly="true" v-model="schedulerInfo['ResultTableInsertSQL']"></el-input>
           </el-form-item>
           <el-form-item label="结果表初始化sql">
             <el-input class="input-item" type="textarea" :readonly="true" v-model="schedulerInfo['ResultTableInitSQL']"></el-input>

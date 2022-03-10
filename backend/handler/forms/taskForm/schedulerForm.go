@@ -15,7 +15,7 @@ type SchedulerForm struct {
 	TaskId               uint   `forms:"TaskId" json:"TaskId" binding:"required"`
 	TaskSchedule         string `forms:"TaskSchedule" json:"TaskSchedule" binding:"required"`
 	ConfigTableQuerySQL  string `forms:"ConfigTableQuerySQL" json:"ConfigTableQuerySQL"`
-	ResultTableCreateSQL string `forms:"ResultTableCreateSQL" json:"ResultTableCreateSQL"`
+	ResultTableInsertSQL string `forms:"ResultTableInsertSQL" json:"ResultTableInsertSQL"`
 	ResultTableInitSQL   string `forms:"ResultTableInitSQL" json:"ResultTableInitSQL"`
 	SourceTableQuerySQL  string `forms:"SourceTableQuerySQL" json:"SourceTableQuerySQL"`
 	TargetTableQuerySQL  string `forms:"TargetTableQuerySQL" json:"TargetTableQuerySQL"`

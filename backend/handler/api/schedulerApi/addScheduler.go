@@ -41,7 +41,7 @@ func AddScheduler(ctx *gin.Context) {
 	dbSchedulerModel.TaskId = dbSchedulerForm.TaskId
 	dbSchedulerModel.TaskSchedule = dbSchedulerForm.TaskSchedule
 	dbSchedulerModel.ConfigTableQuerySQL = dbSchedulerForm.ConfigTableQuerySQL
-	dbSchedulerModel.ResultTableCreateSQL = dbSchedulerForm.ResultTableCreateSQL
+	dbSchedulerModel.ResultTableInsertSQL = dbSchedulerForm.ResultTableInsertSQL
 	dbSchedulerModel.ResultTableInitSQL = dbSchedulerForm.ResultTableInitSQL
 	dbSchedulerModel.SourceTableQuerySQL = dbSchedulerForm.SourceTableQuerySQL
 	dbSchedulerModel.TargetTableQuerySQL = dbSchedulerForm.TargetTableQuerySQL

@@ -20,7 +20,7 @@ database:
     host: 127.0.0.1
     port: 3306
     username: root
-    password:
+    password: Abcd@123456
 
   # redis conf (暂不启用)
   redis:

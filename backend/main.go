@@ -28,6 +28,8 @@ func main() {
 		global.Logger.Error(fmt.Sprintf("初始化数据库失败:%s", err.Error()))
 		return
 	}
+	// 初始化调度任务
+	initialize.InitCron()
 	// 初始化路由
 	Router := initialize.InitRouters()
 	serverAddr := fmt.Sprintf("%s:%d", global.ServerConfig.Host, global.ServerConfig.Port)

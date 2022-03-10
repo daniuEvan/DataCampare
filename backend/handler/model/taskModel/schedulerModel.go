@@ -17,7 +17,7 @@ type SchedulerList struct {
 	TaskId               uint   `gorm:"type:int;not null;comment:任务id"`
 	TaskSchedule         string `gorm:"type:varchar(20);comment:调度表达式"`
 	ConfigTableQuerySQL  string `gorm:"type:text;not null;comment:配置库查询sql"`
-	ResultTableCreateSQL string `gorm:"type:text;not null;comment:结果表创建sql"`
+	ResultTableInsertSQL string `gorm:"type:text;not null;comment:结果表插入sql"`
 	ResultTableInitSQL   string `gorm:"type:text;not null;comment:结果表初始化sql"`
 	SourceTableQuerySQL  string `gorm:"type:text;not null;comment:源端表查询sql"`
 	TargetTableQuerySQL  string `gorm:"type:text;not null;comment:目标表查询sql"`
