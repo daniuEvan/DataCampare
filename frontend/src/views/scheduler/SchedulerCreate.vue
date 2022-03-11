@@ -9,8 +9,6 @@
           label-suffix=" : "
           size="mini"
       >
-
-
         <el-form-item prop="SchedulerName" label="调度名称">
           <el-input class="input-item" v-model="schedulerCreate['SchedulerName']"></el-input>
         </el-form-item>
@@ -65,7 +63,7 @@ export default {
         SchedulerName: [{required: true, message: '不能为空', trigger: "blur"}],
         TaskId: [{required: true, message: '不能为空', trigger: "blur"}],
         TaskSchedule: [{required: true, message: '不能为空', trigger: "blur"}],
-        SchedulerStatus: [{required: true, message: '不能为空', trigger: "blur"}],
+        // SchedulerStatus: [{required: true, message: '不能为空', trigger: "blur"}],
         TaskConcurrent: [
           {required: true, message: '不能为空', trigger: "blur"},
           {type: "number", message: '请输入数字', trigger: "blur"},

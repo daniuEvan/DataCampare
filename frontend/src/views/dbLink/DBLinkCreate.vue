@@ -14,7 +14,11 @@
         </el-form-item>
         <el-form-item required prop="DBType" label="数据库类型">
           <el-select v-model="dbLinkCreate['DBType']" placeholder="请选择数据库类型">
-            <el-option v-for="item in dbTypeArr" :key="item" :label="item" :value="item"></el-option>
+            <el-option v-for="item in dbTypeArr" :key="item" :label="item" :value="item">
+                            <span style="float: left;margin-right: 2px"><img style="width: 10px" class="input-db-logo"
+                                                                             :src="dbLogo[item]" alt=""></span>
+              <span style="float: left; color: #8492a6; font-size: 13px">{{ item }}</span>
+            </el-option>
           </el-select>
         </el-form-item>
         <el-form-item required prop="DBHost" label="主机地址">
@@ -48,7 +52,7 @@ import request from "@/utils/request";
 
 export default {
   name: "DBLinkCreate",
-  props: ["getDBLink", "toDefaultShow"],
+  props: ["getDBLink", "toDefaultShow", "dbLogo"],
   data() {
     return {
       dbTypeArr: [

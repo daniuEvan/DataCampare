@@ -57,23 +57,23 @@ func (c *CornFuncFactory) BuildCronFunc() engineType.CronHandler {
 	coreFunc := func() {
 		// 查询配置表
 		if err := c.queryConfigTable(); err != nil {
-			log.Fatalln(err.Error())
+			log.Println(err.Error())
 			return
 		}
 		// 初始化结果表
 		if err := c.initResultTable(); err != nil {
-			log.Fatalln(err.Error())
+			log.Println(err.Error())
 			return
 		}
 
 		// 查询源表和目标表 将更新sql写入chan
 		if err := c.querySourceAndTargetTable(); err != nil {
-			log.Fatalln(err.Error())
+			log.Println(err.Error())
 			return
 		}
 		// 更新结果表
 		if err := c.insertResultTable(); err != nil {
-			log.Fatalln(err.Error())
+			log.Println(err.Error())
 			return
 		}
 	}
@@ -112,7 +112,7 @@ func (c *CornFuncFactory) queryConfigTable() error {
 	}()
 	configTableDBPort, err := strconv.Atoi(c.schedulerInfo["config_db_port"])
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 		return err
 	}
 	configDBOption := dbLinkEngine.DataBaseOption{
@@ -125,13 +125,13 @@ func (c *CornFuncFactory) queryConfigTable() error {
 	}
 	dbLinker, err := dbLinkEngine.GetDBLinker(configDBOption)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 		return err
 	}
 	defer dbLinker.Close()
 	queryRes, err := dbLinker.Query(configTableQuerySql)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 		return err
 	}
 	byteSliceRes, err := json.Marshal(queryRes)
@@ -189,12 +189,12 @@ func (c *CornFuncFactory) initResultTable() error {
 	dbLinker, err := dbLinkEngine.GetDBLinker(resultBDOption)
 	defer dbLinker.Close()
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 		return err
 	}
 	queryRes, err := dbLinker.Query(resultTableInitCheckSql)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 		return err
 	}
 	byteSliceRes, err := json.Marshal(queryRes)
@@ -222,7 +222,7 @@ func (c *CornFuncFactory) initResultTable() error {
 			for resultTableInitSql := range resultTableInitSqlChan {
 				_, err := dbLinker.Exec(resultTableInitSql)
 				if err != nil {
-					log.Fatalln(err.Error())
+					log.Println(err.Error())
 				}
 				waitGroup.Done()
 			}
@@ -277,7 +277,7 @@ func (c *CornFuncFactory) querySourceAndTargetTable() error {
 	// 并发数
 	taskConcurrent, err := strconv.Atoi(c.schedulerInfo["task_concurrent"])
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 		return err
 	}
 	// 获取sql 并查询
@@ -307,12 +307,12 @@ func (c *CornFuncFactory) querySourceAndTargetTable() error {
 		go func() {
 			sourceDBPort, err := strconv.Atoi(c.schedulerInfo["source_db_port"])
 			if err != nil {
-				log.Fatalln(err.Error())
+				log.Println(err.Error())
 				return
 			}
 			targetDBPort, err := strconv.Atoi(c.schedulerInfo["target_db_port"])
 			if err != nil {
-				log.Fatalln(err.Error())
+				log.Println(err.Error())
 				return
 			}
 			sourceDBOptions := dbLinkEngine.DataBaseOption{
@@ -333,12 +333,12 @@ func (c *CornFuncFactory) querySourceAndTargetTable() error {
 			}
 			sourceDBlinker, err := dbLinkEngine.GetDBLinker(sourceDBOptions)
 			if err != nil {
-				log.Fatalln(err.Error())
+				log.Println(err.Error())
 				return
 			}
 			targetDBlinker, err := dbLinkEngine.GetDBLinker(targetDBOptions)
 			if err != nil {
-				log.Fatalln(err.Error())
+				log.Println(err.Error())
 				return
 			}
 			defer func() {
@@ -353,24 +353,24 @@ func (c *CornFuncFactory) querySourceAndTargetTable() error {
 				// 查询源端和目标端数据
 				sourceQueryRes, err := sourceDBlinker.Query(sourceQuerySql)
 				if err != nil {
-					log.Fatalln(err.Error())
+					log.Println(err.Error())
 					return
 				}
 				sourceQueryResBytes, err := json.Marshal(sourceQueryRes)
 				if err != nil {
-					log.Fatalln(err.Error())
+					log.Println(err.Error())
 					return
 				}
 				sourceValues := gjson.ParseBytes(sourceQueryResBytes).Get("values").Array()[0].Array()
 				sourceCount, sourceMax := sourceValues[0].String(), sourceValues[1].String()
 				targetQueryRes, err := targetDBlinker.Query(targetQuerySql)
 				if err != nil {
-					log.Fatalln(err.Error())
+					log.Println(err.Error())
 					return
 				}
 				targetQueryResBytes, err := json.Marshal(targetQueryRes)
 				if err != nil {
-					log.Fatalln(err.Error())
+					log.Println(err.Error())
 					return
 				}
 				targetValues := gjson.ParseBytes(targetQueryResBytes).Get("values").Array()[0].Array()
@@ -398,7 +398,7 @@ func (c *CornFuncFactory) querySourceAndTargetTable() error {
 func (c CornFuncFactory) insertResultTable() error {
 	taskConcurrent, err := strconv.Atoi(c.schedulerInfo["task_concurrent"])
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 		return err
 	}
 	var waitGroup sync.WaitGroup
@@ -406,7 +406,7 @@ func (c CornFuncFactory) insertResultTable() error {
 	for i := 0; i < taskConcurrent; i++ {
 		resultTableDBPort, err := strconv.Atoi(c.schedulerInfo["result_db_port"])
 		if err != nil {
-			log.Fatalln(err.Error())
+			log.Println(err.Error())
 			return err
 		}
 		resultBDOption := dbLinkEngine.DataBaseOption{
@@ -420,14 +420,14 @@ func (c CornFuncFactory) insertResultTable() error {
 		resultDBLinker, err := dbLinkEngine.GetDBLinker(resultBDOption)
 		defer resultDBLinker.Close()
 		if err != nil {
-			log.Fatalln(err.Error())
+			log.Println(err.Error())
 			return err
 		}
 		go func() {
 			for insertSql := range c.resultTableInsertSqlChan {
 				_, err := resultDBLinker.Exec(insertSql)
 				if err != nil {
-					log.Fatalln(err.Error())
+					log.Println(err.Error())
 					continue
 				}
 			}

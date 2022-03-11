@@ -19,7 +19,7 @@ func InitDBLinkRouter(routerGroup *gin.RouterGroup) {
 		dbLinkRouter.GET("/list/", dbLinkApi.GetDBLinkList)
 		dbLinkRouter.POST("/", dbLinkApi.AddDBLink)
 		dbLinkRouter.POST("/ping/", dbLinkApi.PingDBLink)
-		dbLinkRouter.PUT("/", dbLinkApi.UpdateDBLink)
-		dbLinkRouter.DELETE("/:db_link_id/", dbLinkApi.DeleteDBLink)
+		dbLinkRouter.PUT("/", dbLinkApi.UpdateDBLink, middleware.ReInitCron())
+		dbLinkRouter.DELETE("/:db_link_id/", dbLinkApi.DeleteDBLink, middleware.ReInitCron())
 	}
 }

@@ -3,12 +3,13 @@
  * @desc: ...
  */
 
-package initialize
+package initCron
 
 import (
 	"DataCompare/global"
 	"DataCompare/taskEngine/dbLinkEngine"
 	"DataCompare/taskEngine/engine"
+	"fmt"
 	"go.uber.org/zap"
 )
 
@@ -44,4 +45,19 @@ func InitCron() {
 	//	return
 	//}
 	//_, err = global.SchedulerHandler.AddCronFunc(cronHandler1)
+}
+
+//
+// ChangeTaskModelEvent
+// @Description: 数据库变动触发事件
+//
+func ChangeTaskModelEvent() {
+	if global.SchedulerHandler != nil {
+		// 重新初始化
+		fmt.Println("重新初始化")
+		global.SchedulerHandler.ClearCronFunc() // 清空
+		InitCron()                              // 重新初始化
+	} else {
+		InitCron() // 重新初始化
+	}
 }

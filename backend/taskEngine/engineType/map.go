@@ -7,6 +7,6 @@ package engineType
 
 //
 // SchedulerInfo
-// @Description: 调度详细信息
+// @Description: 调度详细信息  taskSql.SchedulerInfoQuerySQL
 //
-type SchedulerInfo map[string]string // 用户写入库里的配置信息 调度任务的详细信息 可查看 字段详情查看taskSql/schedulerSql
+type SchedulerInfo map[string]string // 用户写入库里的配置信息 调度任务的详细信息 可查看 字段详情查看 taskSql.SchedulerInfoQuerySQL

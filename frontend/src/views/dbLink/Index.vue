@@ -30,10 +30,10 @@
         <DBLinkMsg :dbLinkInfo="dbLinkInfo"/>
       </el-main>
       <el-main v-if="isShow.dbLinkInfoFormShow">
-        <DBLinkEdit :dbLinkEditor="dbLinkEditor" :toDefaultShow="toDefaultShow" :getDBLink="getDBLink"/>
+        <DBLinkEdit :dbLinkEditor="dbLinkEditor" :dbLogo="dbLogo" :toDefaultShow="toDefaultShow" :getDBLink="getDBLink"/>
       </el-main>
       <el-main v-if="isShow.dbLinkCreateInfoFormShow">
-        <DBLinkCreate :toDefaultShow="toDefaultShow" :getDBLink="getDBLink"/>
+        <DBLinkCreate :toDefaultShow="toDefaultShow" :dbLogo="dbLogo" :getDBLink="getDBLink"/>
       </el-main>
     </el-container>
   </el-container>

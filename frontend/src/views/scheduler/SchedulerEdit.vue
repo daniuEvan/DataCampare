@@ -60,7 +60,7 @@ export default {
         SchedulerName: [{required: true, message: '不能为空', trigger: "blur"}],
         TaskId: [{required: true, message: '不能为空', trigger: "blur"}],
         TaskSchedule: [{required: true, message: '不能为空', trigger: "blur"}],
-        SchedulerStatus: [{required: true, message: '不能为空', trigger: "blur"}],
+        // SchedulerStatus: [{required: true, message: '不能为空', trigger: "blur"}],
         TaskConcurrent: [
           {required: true, message: '不能为空', trigger: "blur"},
           {type: "number", message: '请输入数字', trigger: "blur"},

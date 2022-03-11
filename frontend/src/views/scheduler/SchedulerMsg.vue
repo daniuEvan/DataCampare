@@ -18,12 +18,12 @@
           <el-form-item label="调度并发数">
             <el-input class="input-item" :disabled="true" :placeholder="schedulerInfo['TaskConcurrent']"></el-input>
           </el-form-item>
-          <el-form-item label="源表查询sql">
-            <el-input class="input-item" type="textarea" :readonly="true" v-model="schedulerInfo['SourceTableQuerySQL']"></el-input>
-          </el-form-item>
-          <el-form-item label="目标表查询sql">
-            <el-input class="input-item" type="textarea" :readonly="true" v-model="schedulerInfo['TargetTableQuerySQL']"></el-input>
-          </el-form-item>
+<!--          <el-form-item label="源表查询sql">-->
+<!--            <el-input class="input-item" type="textarea" :readonly="true" v-model="schedulerInfo['SourceTableQuerySQL']"></el-input>-->
+<!--          </el-form-item>-->
+<!--          <el-form-item label="目标表查询sql" >-->
+<!--            <el-input class="input-item" type="textarea" :readonly="true" v-model="schedulerInfo['TargetTableQuerySQL']"></el-input>-->
+<!--          </el-form-item>-->
           <el-form-item label="配置表查询sql">
             <el-input class="input-item" type="textarea" :readonly="true" v-model="schedulerInfo['ConfigTableQuerySQL']"></el-input>
           </el-form-item>

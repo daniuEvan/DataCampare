@@ -11,6 +11,7 @@ const USER_INFO = `${USER_PREFIX}info`;
 const DB_LINK_LIST = `db_link_list`
 const TASK_INFO_LIST = `task_info_list`
 const SCHEDULER_INFO_LIST = `scheduler_info_list`
+const SCHEDULER_STATUS = `scheduler_status`
 
 
 // 存储
@@ -30,4 +31,5 @@ export default {
     DB_LINK_LIST,
     TASK_INFO_LIST,
     SCHEDULER_INFO_LIST,
+    SCHEDULER_STATUS,
 }

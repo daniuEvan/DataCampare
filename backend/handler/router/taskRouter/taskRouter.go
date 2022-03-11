@@ -18,7 +18,7 @@ func InitTaskRouter(routerGroup *gin.RouterGroup) {
 		taskRouter.GET("/:task_id/", taskApi.GetTaskInfo)
 		taskRouter.GET("/list/", taskApi.GetTaskList)
 		taskRouter.POST("/", taskApi.AddTask)
-		taskRouter.PUT("/", taskApi.UpdateTask)
-		taskRouter.DELETE("/:task_id/", taskApi.DeleteTask)
+		taskRouter.PUT("/", taskApi.UpdateTask, middleware.ReInitCron())
+		taskRouter.DELETE("/:task_id/", taskApi.DeleteTask, middleware.ReInitCron())
 	}
 }

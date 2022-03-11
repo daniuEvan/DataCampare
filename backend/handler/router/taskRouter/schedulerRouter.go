@@ -17,8 +17,9 @@ func InitSchedulerRouter(routerGroup *gin.RouterGroup) {
 	{
 		schedulerRouter.GET("/:scheduler_id/", schedulerApi.GetSchedulerInfo)
 		schedulerRouter.GET("/list/", schedulerApi.GetSchedulerList)
-		schedulerRouter.POST("/", schedulerApi.AddScheduler)
-		schedulerRouter.PUT("/", schedulerApi.UpdateScheduler)
-		schedulerRouter.DELETE("/:scheduler_id/", schedulerApi.DeleteScheduler)
+		schedulerRouter.GET("/watch_scheduler/", schedulerApi.WatchScheduler) // 监控scheduler
+		schedulerRouter.POST("/", schedulerApi.AddScheduler, middleware.ReInitCron())
+		schedulerRouter.PUT("/", schedulerApi.UpdateScheduler, middleware.ReInitCron())
+		schedulerRouter.DELETE("/:scheduler_id/", schedulerApi.DeleteScheduler, middleware.ReInitCron())
 	}
 }

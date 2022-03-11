@@ -8,6 +8,7 @@ package main
 import (
 	"DataCompare/global"
 	"DataCompare/initialize"
+	"DataCompare/initialize/initCron"
 	"fmt"
 )
 
@@ -29,7 +30,7 @@ func main() {
 		return
 	}
 	// 初始化调度任务
-	initialize.InitCron()
+	initCron.InitCron()
 	// 初始化路由
 	Router := initialize.InitRouters()
 	serverAddr := fmt.Sprintf("%s:%d", global.ServerConfig.Host, global.ServerConfig.Port)
