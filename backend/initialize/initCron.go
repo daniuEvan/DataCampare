@@ -10,12 +10,12 @@ import (
 	"DataCompare/taskEngine/dbLinkEngine"
 	"DataCompare/taskEngine/engine"
 	"go.uber.org/zap"
-	"strconv"
 )
 
 func InitCron() {
 	backendDBInfo := global.ServerConfig.DatabaseInfo.MysqlInfo
 	dbOptions := dbLinkEngine.DataBaseOption{
+		DBType:     "mysql",
 		DBHost:     backendDBInfo.Host,
 		DBPort:     uint(backendDBInfo.Port),
 		DBName:     backendDBInfo.DBName,
@@ -28,24 +28,20 @@ func InitCron() {
 		return
 	}
 	global.SchedulerHandler = schedulerHandler
-	cronInfoList := global.SchedulerHandler.BuildCornHandler()
-	for _, cronInfo := range cronInfoList {
-		schedulerId, err := strconv.Atoi(cronInfo.SchedulerInfo["sid"])
+	global.SchedulerHandler.CronStart()
+	cronHandlerList := global.SchedulerHandler.BuildCronHandlers()
+	for _, cronHandler := range cronHandlerList {
+		_, err = global.SchedulerHandler.AddCronFunc(cronHandler)
 		if err != nil {
 			global.Logger.Error(err.Error(), zap.String("初始化调度", err.Error()))
-			return
-		}
-		_, err = global.SchedulerHandler.AddFunc(cronInfo)
-		if err != nil {
-			global.Logger.Error(err.Error(), zap.String("初始化调度", err.Error()))
-			global.SchedulerHandler.SchedulerStartStatus = map[int]engine.SchedulerStartStatus{
-				schedulerId: engine.SchedulerStartStatus{Status: false, ErrorMsg: err.Error()},
-			}
-			continue
-		}
-		global.SchedulerHandler.SchedulerStartStatus = map[int]engine.SchedulerStartStatus{
-			schedulerId: engine.SchedulerStartStatus{Status: true},
 		}
 	}
-	global.SchedulerHandler.Cron.Start()
+	// 单独初始化
+	//cronHandler1, err := global.SchedulerHandler.BuildCronHandler(5)
+	//if err != nil {
+	//	global.Logger.Error(err.Error(), zap.String("初始化调度", err.Error()))
+	//	log.Println(err)
+	//	return
+	//}
+	//_, err = global.SchedulerHandler.AddCronFunc(cronHandler1)
 }

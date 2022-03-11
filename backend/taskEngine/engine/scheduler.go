@@ -7,67 +7,64 @@ package engine
 
 import (
 	"DataCompare/taskEngine/dbLinkEngine"
+	"DataCompare/taskEngine/engineType"
 	"DataCompare/taskEngine/taskSql"
 	"DataCompare/utils"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/robfig/cron/v3"
 	"github.com/tidwall/gjson"
 	"log"
 	"strconv"
-	"time"
 )
 
-//
-// SchedulerInfo
-// @Description: 调度详细信息
-//
-type SchedulerInfo map[string]string // 用户写入库里的配置信息 调度任务的详细信息 可查看 字段详情查看taskSql/schedulerSql
-
 type Scheduler struct {
-	CheckDateString           string // 检查日期 2006-01-02
-	SchedulerInfoList         []SchedulerInfo
-	StartedSchedulerMap       map[int]SchedulerInfo        // 已启动的调度 { 调度id: { 任务字段:详情 } }
-	SchedulerWithCronGraphMap map[int]cron.EntryID         // { 调度id: cron id}
-	Cron                      *cron.Cron                   // cron 调度器
-	SchedulerStartStatus      map[int]SchedulerStartStatus // 调度状态 { 调度id: SchedulerStartStatus }
+	schedulerInfoList         []engineType.SchedulerInfo
+	startedSchedulerMap       map[int]engineType.SchedulerInfo        // 已启动的调度 { 调度id: { 任务字段:详情 } }
+	schedulerWithCronGraphMap map[int]cron.EntryID                    // { 调度id: cron id}
+	cron                      *cron.Cron                              // cron 调度器
+	schedulerStartStatus      map[int]engineType.SchedulerStartStatus // 调度状态 { 调度id: SchedulerStartStatus }
+	backendDBOptions          dbLinkEngine.DataBaseOption
 }
 
 func NewScheduler(backendDBOptions dbLinkEngine.DataBaseOption) (*Scheduler, error) {
-	nowDate := time.Now().Format("2006-01-02")
 	link, err := dbLinkEngine.NewMysqlLink(backendDBOptions)
 	if err != nil {
 		log.Fatalln(err.Error())
 		return nil, err
 	}
 	queryRes, err := link.Query(taskSql.SchedulerInfoQuerySQL)
-	byteSliceRes, err := json.Marshal(queryRes)
-	gResult := gjson.ParseBytes(byteSliceRes)
-	infoKeys := gResult.Get("columns").Array()
-	infoValues := gResult.Get("values").Array()
-	schedulerInfoSlice := make([]SchedulerInfo, 0)
-	for _, values := range infoValues {
-		schedulerInfo := SchedulerInfo{}
-		for j, value := range values.Array() {
-			schedulerInfo[infoKeys[j].String()] = value.String()
-		}
-		schedulerInfoSlice = append(schedulerInfoSlice, schedulerInfo)
-	}
 	if err != nil {
 		return nil, err
 	}
+	byteSliceRes, err := json.Marshal(queryRes)
+	if err != nil {
+		return nil, err
+	}
+	gResult := gjson.ParseBytes(byteSliceRes)
+	infoKeys := gResult.Get("columns").Array()
+	infoValues := gResult.Get("values").Array()
+	schedulerInfoList := make([]engineType.SchedulerInfo, 0)
+	for _, values := range infoValues {
+		schedulerInfo := engineType.SchedulerInfo{}
+		for j, value := range values.Array() {
+			schedulerInfo[infoKeys[j].String()] = value.String()
+		}
+		schedulerInfoList = append(schedulerInfoList, schedulerInfo)
+	}
 	// 初加工config 表和result 表sql, 解密数据库密码
-	for _, info := range schedulerInfoSlice {
+	for _, info := range schedulerInfoList {
 		// 初加工config 表和result 表sql
 		configTableDBType := info["config_db_type"]
 		configTableQuerySql := fmt.Sprintf(taskSql.ConfigTableQuerySqlMap[configTableDBType], info["config_table_owner"], info["config_table_name"])
 		info["config_table_query_sql"] = configTableQuerySql
 		resultTableDBType := info["result_db_type"]
-		resultTableInsertSql := fmt.Sprintf(taskSql.ResultTableInsertSqlMap[resultTableDBType], info["result_table_owner"], info["result_table_name"], "%s", "%s", "%s", "%s", nowDate, "%s", "%s")
+		resultTableInsertSql := fmt.Sprintf(taskSql.ResultTableInsertSqlMap[resultTableDBType], info["result_table_owner"], info["result_table_name"], "%s", "%s", "%s", "%s", "%s", "%s", "%s")
 		info["result_table_insert_sql"] = resultTableInsertSql
-		resultTableInitSql := fmt.Sprintf(taskSql.ResultTableInitSqlMap[resultTableDBType], info["result_table_owner"], info["result_table_name"], "%s", "%s", nowDate)
+		resultTableInitSql := fmt.Sprintf(taskSql.ResultTableInitSqlMap[resultTableDBType], info["result_table_owner"], info["result_table_name"], "%s", "%s", "%s")
 		info["result_table_init_sql"] = resultTableInitSql
-		resultTableInitCheckSql := fmt.Sprintf(taskSql.ResultTableInitCheckSqlMap[resultTableDBType], info["result_table_owner"], info["result_table_name"], nowDate)
+		resultTableInitCheckSql := fmt.Sprintf(taskSql.ResultTableInitCheckSqlMap[resultTableDBType], info["result_table_owner"], info["result_table_name"], "%s")
 		info["result_table_init_check_sql"] = resultTableInitCheckSql
 
 		// 解密数据库密码
@@ -77,28 +74,91 @@ func NewScheduler(backendDBOptions dbLinkEngine.DataBaseOption) (*Scheduler, err
 		info["result_db_password"] = utils.DecodeBase64ToString(info["result_db_password"])
 	}
 	return &Scheduler{
-		SchedulerInfoList:         schedulerInfoSlice,
-		CheckDateString:           nowDate,
-		Cron:                      cron.New(),
-		StartedSchedulerMap:       make(map[int]SchedulerInfo),
-		SchedulerWithCronGraphMap: make(map[int]cron.EntryID),
-		SchedulerStartStatus:      make(map[int]SchedulerStartStatus),
+		schedulerInfoList:         schedulerInfoList,
+		cron:                      cron.New(),
+		startedSchedulerMap:       make(map[int]engineType.SchedulerInfo),
+		schedulerWithCronGraphMap: make(map[int]cron.EntryID),
+		schedulerStartStatus:      make(map[int]engineType.SchedulerStartStatus),
+		backendDBOptions:          backendDBOptions,
 	}, nil
 }
 
 //
-// BuildCornHandler
-// @Description: 构建任务列表
+// GetAllScheduler
+// @Description: 获取全部的调度状态和调度信息
+// @receiver s
+// @return map[int]engineType.SchedulerStartStatus:
+//
+func (s *Scheduler) GetAllScheduler() map[int]engineType.SchedulerStartStatus {
+	return s.schedulerStartStatus
+}
+
+//
+// BuildCronHandlers
+// @Description: 批量构建任务列表
 // @return handlerSlice:
 // @return err:
 //
-func (s *Scheduler) BuildCornHandler() (cronInfoList []CronInfo) {
-	for _, schedulerInfo := range s.SchedulerInfoList {
-		cronHandler := NewCornFuncFactory(schedulerInfo, s.CheckDateString)
-		cronInfo := cronHandler.BuildCronFunc() // 构造定时任务
-		cronInfoList = append(cronInfoList, cronInfo)
+func (s *Scheduler) BuildCronHandlers() (cronHandlerList []engineType.CronHandler) {
+	for _, schedulerInfo := range s.schedulerInfoList {
+		coreFactory := NewCornFuncFactory(schedulerInfo)
+		cronHandler := coreFactory.BuildCronFunc() // 构造定时任务
+		cronHandlerList = append(cronHandlerList, cronHandler)
 	}
-	return cronInfoList
+	return cronHandlerList
+}
+
+//
+// BuildCronHandler
+// @Description: 单独构建任务
+// @param schedulerId:
+// @return cronHandler:
+// @return err:
+//
+func (s *Scheduler) BuildCronHandler(schedulerId int) (cronHandler engineType.CronHandler, err error) {
+	link, err := dbLinkEngine.NewMysqlLink(s.backendDBOptions)
+	if err != nil {
+		log.Fatalln(err.Error())
+		return cronHandler, err
+	}
+	queryRes, err := link.Query(taskSql.SchedulerInfoQuerySQL + fmt.Sprintf(" and s.id = %d", schedulerId))
+	if err != nil {
+		return cronHandler, err
+	}
+	byteSliceRes, err := json.Marshal(queryRes)
+	if err != nil {
+		return cronHandler, err
+	}
+	gResult := gjson.ParseBytes(byteSliceRes)
+	infoKeys := gResult.Get("columns").Array()
+	infoValues := gResult.Get("values").Array()
+	if len(infoValues) <= 0 {
+		return cronHandler, errors.New("未查询到该调度id")
+	}
+	schedulerInfo := engineType.SchedulerInfo{}
+	for j, value := range infoValues[0].Array() {
+		schedulerInfo[infoKeys[j].String()] = value.String()
+	}
+	// 初加工config 表和result 表sql
+	configTableDBType := schedulerInfo["config_db_type"]
+	configTableQuerySql := fmt.Sprintf(taskSql.ConfigTableQuerySqlMap[configTableDBType], schedulerInfo["config_table_owner"], schedulerInfo["config_table_name"])
+	schedulerInfo["config_table_query_sql"] = configTableQuerySql
+	resultTableDBType := schedulerInfo["result_db_type"]
+	resultTableInsertSql := fmt.Sprintf(taskSql.ResultTableInsertSqlMap[resultTableDBType], schedulerInfo["result_table_owner"], schedulerInfo["result_table_name"], "%s", "%s", "%s", "%s", "%s", "%s", "%s")
+	schedulerInfo["result_table_insert_sql"] = resultTableInsertSql
+	resultTableInitSql := fmt.Sprintf(taskSql.ResultTableInitSqlMap[resultTableDBType], schedulerInfo["result_table_owner"], schedulerInfo["result_table_name"], "%s", "%s", "%s")
+	schedulerInfo["result_table_init_sql"] = resultTableInitSql
+	resultTableInitCheckSql := fmt.Sprintf(taskSql.ResultTableInitCheckSqlMap[resultTableDBType], schedulerInfo["result_table_owner"], schedulerInfo["result_table_name"], "%s")
+	schedulerInfo["result_table_init_check_sql"] = resultTableInitCheckSql
+	// 解密数据库密码
+	schedulerInfo["config_db_password"] = utils.DecodeBase64ToString(schedulerInfo["config_db_password"])
+	schedulerInfo["source_db_password"] = utils.DecodeBase64ToString(schedulerInfo["source_db_password"])
+	schedulerInfo["target_db_password"] = utils.DecodeBase64ToString(schedulerInfo["target_db_password"])
+	schedulerInfo["result_db_password"] = utils.DecodeBase64ToString(schedulerInfo["result_db_password"])
+	s.schedulerInfoList = append(s.schedulerInfoList, schedulerInfo)
+	coreFactory := NewCornFuncFactory(schedulerInfo)
+	cronHandler = coreFactory.BuildCronFunc() // 构造定时任务
+	return cronHandler, nil
 }
 
 //
@@ -107,7 +167,7 @@ func (s *Scheduler) BuildCornHandler() (cronInfoList []CronInfo) {
 // @receiver s
 //
 func (s *Scheduler) CronStart() {
-	s.Cron.Start()
+	s.cron.Start()
 }
 
 //
@@ -116,72 +176,81 @@ func (s *Scheduler) CronStart() {
 // @receiver s
 //
 func (s *Scheduler) CronStop() {
-	s.Cron.Stop()
+	s.cron.Stop()
 }
 
 //
-// AddFunc
+// AddCronFunc
 // @Description: 添加任务
 // @receiver s
 //
-func (s *Scheduler) AddFunc(cornInfo CronInfo) (entryID cron.EntryID, err error) {
-	cornFunc := cornInfo.CornFunc
-	cronScheduler := cornInfo.CronScheduler
-	schedulerInfo := cornInfo.SchedulerInfo
+func (s *Scheduler) AddCronFunc(cornHandler engineType.CronHandler) (entryID cron.EntryID, err error) {
+	cornFunc := cornHandler.CornFunc
+	cronScheduler := cornHandler.CronScheduler
+	schedulerInfo := cornHandler.SchedulerInfo
 	schedulerId, err := strconv.Atoi(schedulerInfo["sid"])
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
+		// scheduler status -> false
+		s.schedulerStartStatus[schedulerId] = engineType.SchedulerStartStatus{Status: false, SchedulerInfo: schedulerInfo, ErrorMsg: err.Error()}
 		return 0, err
 	}
-	entryID, err = s.Cron.AddFunc(cronScheduler, cornFunc)
+	entryID, err = s.cron.AddFunc(cronScheduler, cornFunc)
 	if err != nil {
-		log.Fatalln(err.Error())
+		// scheduler status -> false
+		s.schedulerStartStatus[schedulerId] = engineType.SchedulerStartStatus{Status: false, SchedulerInfo: schedulerInfo, ErrorMsg: err.Error()}
+		log.Println(err.Error())
 		return 0, err
 	}
 	// 添加到
-	s.StartedSchedulerMap[schedulerId] = schedulerInfo
-	s.SchedulerWithCronGraphMap[schedulerId] = entryID
+	s.startedSchedulerMap[schedulerId] = schedulerInfo
+	s.schedulerWithCronGraphMap[schedulerId] = entryID
+	// scheduler status -> True
+	s.schedulerStartStatus[schedulerId] = engineType.SchedulerStartStatus{Status: true, SchedulerInfo: schedulerInfo}
 	return
 }
 
 //
-// RemoveWithSchedulerId
+// RemoveCronFuncWithSchedulerId
 // @Description: schedulerId移除任务
 // @receiver s
 //
-func (s *Scheduler) RemoveWithSchedulerId(schedulerId int) {
-	entryID := s.SchedulerWithCronGraphMap[schedulerId]
-	s.Cron.Remove(entryID)
-	delete(s.SchedulerWithCronGraphMap, schedulerId)
-	delete(s.StartedSchedulerMap, schedulerId)
+func (s *Scheduler) RemoveCronFuncWithSchedulerId(schedulerId int) {
+	entryID := s.schedulerWithCronGraphMap[schedulerId]
+	s.cron.Remove(entryID)
+	delete(s.schedulerWithCronGraphMap, schedulerId)
+	delete(s.startedSchedulerMap, schedulerId)
+	delete(s.schedulerStartStatus, schedulerId)
 }
 
 //
-// RemoveWithEntryId
+// RemoveCronFuncWithEntryId
 // @Description: 通过entryID移除任务
 // @receiver s
 //
-func (s *Scheduler) RemoveWithEntryId(entryId cron.EntryID) {
-	s.Cron.Remove(entryId)
+func (s *Scheduler) RemoveCronFuncWithEntryId(entryId cron.EntryID) {
+	s.cron.Remove(entryId)
 	var schedulerId int
-	for key, value := range s.SchedulerWithCronGraphMap {
+	for key, value := range s.schedulerWithCronGraphMap {
 		if value == entryId {
 			schedulerId = key
 		}
 	}
-	delete(s.SchedulerWithCronGraphMap, schedulerId)
-	delete(s.StartedSchedulerMap, schedulerId)
+	delete(s.schedulerWithCronGraphMap, schedulerId)
+	delete(s.startedSchedulerMap, schedulerId)
+	delete(s.schedulerStartStatus, schedulerId)
 }
 
 //
-// Clear
+// ClearCronFunc
 // @Description: 移除全部任务
 // @receiver s
 //
-func (s *Scheduler) Clear() {
-	for _, entryID := range s.SchedulerWithCronGraphMap {
-		s.Cron.Remove(entryID)
+func (s *Scheduler) ClearCronFunc() {
+	for _, entryID := range s.schedulerWithCronGraphMap {
+		s.cron.Remove(entryID)
 	}
-	s.StartedSchedulerMap = map[int]SchedulerInfo{}
-	s.SchedulerWithCronGraphMap = map[int]cron.EntryID{}
+	s.startedSchedulerMap = map[int]engineType.SchedulerInfo{}
+	s.schedulerWithCronGraphMap = map[int]cron.EntryID{}
+	s.schedulerStartStatus = map[int]engineType.SchedulerStartStatus{}
 }
