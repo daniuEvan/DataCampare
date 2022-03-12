@@ -15,7 +15,7 @@ import (
 func main() {
 	// 初始化配置文件
 	initialize.InitConfigFromYaml()
-	// 初始化 zap-logger
+	// 初始化 zap-cronLogger
 	initialize.InitLogger()
 	// 初始化翻译
 	if err := initialize.InitTrans(global.ZH); err != nil {

@@ -6,6 +6,7 @@
 package engine
 
 import (
+	"DataCompare/global"
 	"DataCompare/taskEngine/dbLinkEngine"
 	"DataCompare/taskEngine/engineType"
 	"DataCompare/taskEngine/taskSql"
@@ -15,7 +16,6 @@ import (
 	"fmt"
 	"github.com/robfig/cron/v3"
 	"github.com/tidwall/gjson"
-	"log"
 	"strconv"
 )
 
@@ -31,15 +31,17 @@ type Scheduler struct {
 func NewScheduler(backendDBOptions dbLinkEngine.DataBaseOption) (*Scheduler, error) {
 	link, err := dbLinkEngine.NewMysqlLink(backendDBOptions)
 	if err != nil {
-		log.Fatalln(err.Error())
+		global.Logger.Error(err.Error())
 		return nil, err
 	}
 	queryRes, err := link.Query(taskSql.SchedulerInfoQuerySQL)
 	if err != nil {
+		global.Logger.Error(err.Error())
 		return nil, err
 	}
 	byteSliceRes, err := json.Marshal(queryRes)
 	if err != nil {
+		global.Logger.Error(err.Error())
 		return nil, err
 	}
 	gResult := gjson.ParseBytes(byteSliceRes)
@@ -117,16 +119,18 @@ func (s *Scheduler) BuildCronHandlers() (cronHandlerList []engineType.CronHandle
 func (s *Scheduler) BuildCronHandler(schedulerId int) (cronHandler engineType.CronHandler, err error) {
 	dbLinker, err := dbLinkEngine.NewMysqlLink(s.backendDBOptions)
 	if err != nil {
-		log.Println(err.Error())
+		global.Logger.Error(err.Error())
 		return
 	}
 	defer dbLinker.Close()
 	queryRes, err := dbLinker.Query(taskSql.SchedulerInfoQuerySQL + fmt.Sprintf(" and s.id = %d", schedulerId))
 	if err != nil {
+		global.Logger.Error(err.Error())
 		return cronHandler, err
 	}
 	byteSliceRes, err := json.Marshal(queryRes)
 	if err != nil {
+		global.Logger.Error(err.Error())
 		return cronHandler, err
 	}
 	gResult := gjson.ParseBytes(byteSliceRes)
@@ -190,7 +194,7 @@ func (s *Scheduler) AddCronFunc(cornHandler engineType.CronHandler) (entryID cro
 	schedulerInfo := cornHandler.SchedulerInfo
 	schedulerId, err := strconv.Atoi(schedulerInfo["sid"])
 	if err != nil {
-		log.Println(err.Error())
+		global.Logger.Error(err.Error())
 		// scheduler status -> false
 		s.schedulerStartStatus[schedulerId] = engineType.SchedulerStartStatus{Status: false, SchedulerInfo: schedulerInfo, ErrorMsg: err.Error()}
 		return 0, err
@@ -198,8 +202,8 @@ func (s *Scheduler) AddCronFunc(cornHandler engineType.CronHandler) (entryID cro
 	entryID, err = s.cron.AddFunc(cronScheduler, cornFunc)
 	if err != nil {
 		// scheduler status -> false
+		global.Logger.Error(err.Error())
 		s.schedulerStartStatus[schedulerId] = engineType.SchedulerStartStatus{Status: false, SchedulerInfo: schedulerInfo, ErrorMsg: err.Error()}
-		log.Println(err.Error())
 		return 0, err
 	}
 	// 添加到

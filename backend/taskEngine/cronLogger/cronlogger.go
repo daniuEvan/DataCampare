@@ -1,12 +1,12 @@
-/*
- * @date: 2021/12/15
+/**
+ * @date: 2022/3/12
  * @desc: ...
  */
 
-package initialize
+package cronLogger
 
 import (
-	"DataCompare/global"
+	"DataCompare/utils"
 	"github.com/natefinch/lumberjack"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -14,29 +14,26 @@ import (
 	"strings"
 )
 
-// InitLogger 初始化logger
-func InitLogger() {
-	logInfo := global.ServerConfig.LogInfo
+// CronLogger 初始化logger
+func CronLogger(logFileName string) *zap.Logger {
 	var (
-		level        = logInfo.LogLevel
-		logPath      = logInfo.LogPath
-		logInConsole = logInfo.LogInConsole
-		maxSize      = logInfo.MaxSize
-		maxBackups   = logInfo.MaxBackups
-		maxAge       = logInfo.MaxAge
-		compress     = logInfo.Compress
+		level        = "info"                  // debug, info, warn, error, dpanic, panic, fatal
+		logPath      = "./logs/" + logFileName // 日志绝对路径
+		logInConsole = utils.IsDebugEnv()      // 打印到控制台
+		maxSize      = 1                       // 在进行切割之前，日志文件的最大大小（以MB为单位)
+		maxBackups   = 10                      // 保留旧文件的最大个数
+		maxAge       = 30                      // 保留旧文件的最大天数
+		compress     = false                   // 是否压缩/归档旧文件
 	)
-
 	// 设置日志级别
 	//atomicLevel := zap.NewAtomicLevel()
 	logLevel := getLogLevel(level)
 	//atomicLevel.SetLevel(logLevel)
-
 	// 状态配置
 	writeSyncer := getLogWriter(logPath, maxSize, maxBackups, maxAge, compress, logInConsole)
 	encoder := getEncoder()
 	core := zapcore.NewCore(encoder, writeSyncer, logLevel)
-	global.Logger = zap.New(core, zap.AddCaller())
+	return zap.New(core, zap.AddCaller())
 }
 
 // getLogLevel 获取日志级别

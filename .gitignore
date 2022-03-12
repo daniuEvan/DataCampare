@@ -17,6 +17,7 @@ test*
 # vendor/
 .idea/
 log/
+logs/
 test/
 *.log
 # test file

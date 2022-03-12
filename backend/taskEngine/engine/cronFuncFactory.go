@@ -13,7 +13,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/tidwall/gjson"
-	"log"
+	"go.uber.org/zap"
 	"strconv"
 	"strings"
 	"sync"
@@ -27,9 +27,10 @@ type CronFuncFactory struct {
 	sourceAndTargetQuerySqlChan chan map[string]string // {s:sSql,t:tSql,owner,tablename,bd_column}
 	resultTableInsertSqlChan    chan string            // result table insert sql
 	backendDBOption             dbLinkEngine.DataBaseOption
+	logger                      *zap.Logger
 }
 
-func NewCronFuncFactory(schedulerInfo engineType.SchedulerInfo) *CronFuncFactory {
+func NewCronFuncFactory(schedulerInfo engineType.SchedulerInfo, logger *zap.Logger) *CronFuncFactory {
 	backendDBOption := dbLinkEngine.DataBaseOption{
 		DBType:     "mysql",
 		DBHost:     global.ServerConfig.DatabaseInfo.MysqlInfo.Host,
@@ -43,6 +44,7 @@ func NewCronFuncFactory(schedulerInfo engineType.SchedulerInfo) *CronFuncFactory
 		backendDBOption:             backendDBOption,
 		sourceAndTargetQuerySqlChan: make(chan map[string]string, 100),
 		resultTableInsertSqlChan:    make(chan string, 100),
+		logger:                      logger,
 	}
 }
 
@@ -63,19 +65,19 @@ func (c *CronFuncFactory) queryConfigTable() error {
 		)
 		backendDBLinker, err := dbLinkEngine.GetDBLinker(c.backendDBOption)
 		if err != nil {
-			log.Println(err.Error())
+			c.logger.Error(err.Error())
 			return
 		}
 		defer backendDBLinker.Close()
 		_, err = backendDBLinker.Exec(insertSchedulerConfigTableQuerySql)
 		if err != nil {
-			log.Println(err.Error())
+			c.logger.Error(err.Error())
 			return
 		}
 	}()
 	configTableDBPort, err := strconv.Atoi(c.schedulerInfo["config_db_port"])
 	if err != nil {
-		log.Println(err.Error())
+		c.logger.Error(err.Error())
 		return err
 	}
 	configDBOption := dbLinkEngine.DataBaseOption{
@@ -88,13 +90,13 @@ func (c *CronFuncFactory) queryConfigTable() error {
 	}
 	dbLinker, err := dbLinkEngine.GetDBLinker(configDBOption)
 	if err != nil {
-		log.Println(err.Error())
+		c.logger.Error(err.Error())
 		return err
 	}
 	defer dbLinker.Close()
 	queryRes, err := dbLinker.Query(configTableQuerySql)
 	if err != nil {
-		log.Println(err.Error())
+		c.logger.Error(err.Error())
 		return err
 	}
 	byteSliceRes, err := json.Marshal(queryRes)
@@ -126,13 +128,13 @@ func (c *CronFuncFactory) initResultTable() error {
 		)
 		backendDBLinker, err := dbLinkEngine.GetDBLinker(c.backendDBOption)
 		if err != nil {
-			log.Println(err.Error())
+			c.logger.Error(err.Error())
 			return
 		}
 		defer backendDBLinker.Close()
 		_, err = backendDBLinker.Exec(insertSchedulerConfigTableInitSql)
 		if err != nil {
-			log.Println(err.Error())
+			c.logger.Error(err.Error())
 			return
 		}
 	}()
@@ -152,20 +154,18 @@ func (c *CronFuncFactory) initResultTable() error {
 	dbLinker, err := dbLinkEngine.GetDBLinker(resultBDOption)
 	defer dbLinker.Close()
 	if err != nil {
-		log.Println(err.Error())
+		c.logger.Error(err.Error())
 		return err
 	}
 	queryRes, err := dbLinker.Query(resultTableInitCheckSql)
 	if err != nil {
-		log.Println(err.Error())
+		c.logger.Error(err.Error())
 		return err
 	}
 	byteSliceRes, err := json.Marshal(queryRes)
 	gResult := gjson.ParseBytes(byteSliceRes)
 	infoValues := gResult.Get("values").Array()
 	resultQueryNum := infoValues[0].Array()[0].Int()
-	fmt.Println("resultQueryNum---:   ", resultQueryNum)
-	fmt.Println("infoValues:   ", infoValues)
 	if resultQueryNum > 0 {
 		return nil
 	}
@@ -185,7 +185,7 @@ func (c *CronFuncFactory) initResultTable() error {
 			for resultTableInitSql := range resultTableInitSqlChan {
 				_, err := dbLinker.Exec(resultTableInitSql)
 				if err != nil {
-					log.Println(err.Error())
+					c.logger.Error(err.Error())
 				}
 				waitGroup.Done()
 			}
@@ -243,7 +243,7 @@ func (c *CronFuncFactory) querySourceAndTargetTable() error {
 	// 并发数
 	taskConcurrent, err := strconv.Atoi(c.schedulerInfo["task_concurrent"])
 	if err != nil {
-		log.Println(err.Error())
+		c.logger.Error(err.Error())
 		return err
 	}
 	// 获取sql 并查询
@@ -258,13 +258,13 @@ func (c *CronFuncFactory) querySourceAndTargetTable() error {
 		)
 		backendDBLinker, err := dbLinkEngine.GetDBLinker(c.backendDBOption)
 		if err != nil {
-			log.Println(err.Error())
+			c.logger.Error(err.Error())
 			return
 		}
 		defer backendDBLinker.Close()
 		_, err = backendDBLinker.Exec(insertSchedulerResultTableInsertSql)
 		if err != nil {
-			log.Println(err.Error())
+			c.logger.Error(err.Error())
 			return
 		}
 	}()
@@ -274,12 +274,12 @@ func (c *CronFuncFactory) querySourceAndTargetTable() error {
 			defer waitGroup.Done()
 			sourceDBPort, err := strconv.Atoi(c.schedulerInfo["source_db_port"])
 			if err != nil {
-				log.Println(err.Error())
+				c.logger.Error(err.Error())
 				return
 			}
 			targetDBPort, err := strconv.Atoi(c.schedulerInfo["target_db_port"])
 			if err != nil {
-				log.Println(err.Error())
+				c.logger.Error(err.Error())
 				return
 			}
 			sourceDBOptions := dbLinkEngine.DataBaseOption{
@@ -300,13 +300,13 @@ func (c *CronFuncFactory) querySourceAndTargetTable() error {
 			}
 			sourceDBlinker, err := dbLinkEngine.GetDBLinker(sourceDBOptions)
 			if err != nil {
-				log.Println(err.Error())
+				c.logger.Error(err.Error())
 				return
 			}
 			defer sourceDBlinker.Close()
 			targetDBlinker, err := dbLinkEngine.GetDBLinker(targetDBOptions)
 			if err != nil {
-				log.Println(err.Error())
+				c.logger.Error(err.Error())
 				return
 			}
 			defer targetDBlinker.Close()
@@ -319,24 +319,24 @@ func (c *CronFuncFactory) querySourceAndTargetTable() error {
 				// 查询源端和目标端数据
 				sourceQueryRes, err := sourceDBlinker.Query(sourceQuerySql)
 				if err != nil {
-					log.Println(err.Error())
+					c.logger.Error(err.Error())
 					continue
 				}
 				sourceQueryResBytes, err := json.Marshal(sourceQueryRes)
 				if err != nil {
-					log.Println(err.Error())
+					c.logger.Error(err.Error())
 					continue
 				}
 				sourceValues := gjson.ParseBytes(sourceQueryResBytes).Get("values").Array()[0].Array()
 				sourceCount, sourceMax := sourceValues[0].String(), sourceValues[1].String()
 				targetQueryRes, err := targetDBlinker.Query(targetQuerySql)
 				if err != nil {
-					log.Println(err.Error())
+					c.logger.Error(err.Error())
 					continue
 				}
 				targetQueryResBytes, err := json.Marshal(targetQueryRes)
 				if err != nil {
-					log.Println(err.Error())
+					c.logger.Error(err.Error())
 					continue
 				}
 				targetValues := gjson.ParseBytes(targetQueryResBytes).Get("values").Array()[0].Array()
@@ -362,7 +362,7 @@ func (c *CronFuncFactory) querySourceAndTargetTable() error {
 func (c *CronFuncFactory) insertResultTable() error {
 	taskConcurrent, err := strconv.Atoi(c.schedulerInfo["task_concurrent"])
 	if err != nil {
-		log.Println(err.Error())
+		c.logger.Error(err.Error())
 		return err
 	}
 	var waitGroup sync.WaitGroup
@@ -371,7 +371,7 @@ func (c *CronFuncFactory) insertResultTable() error {
 		go func() {
 			resultTableDBPort, err := strconv.Atoi(c.schedulerInfo["result_db_port"])
 			if err != nil {
-				log.Println(err.Error())
+				c.logger.Error(err.Error())
 				return
 			}
 			resultBDOption := dbLinkEngine.DataBaseOption{
@@ -384,14 +384,14 @@ func (c *CronFuncFactory) insertResultTable() error {
 			}
 			resultDBLinker, err := dbLinkEngine.GetDBLinker(resultBDOption)
 			if err != nil {
-				log.Println(err.Error())
+				c.logger.Error(err.Error())
 				return
 			}
 			defer resultDBLinker.Close()
 			for insertSql := range c.resultTableInsertSqlChan {
 				_, err := resultDBLinker.Exec(insertSql)
 				if err != nil {
-					log.Println(err.Error())
+					c.logger.Error(err.Error())
 					continue
 				}
 			}
