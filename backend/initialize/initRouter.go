@@ -12,6 +12,7 @@ import (
 	"DataCompare/handler/router/userRouter"
 	"DataCompare/middleware"
 	"DataCompare/utils"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,6 +20,7 @@ func InitRouters() *gin.Engine {
 	defaultRouter := gin.New()
 	if utils.IsDebugEnv() {
 		defaultRouter = gin.Default()
+		pprof.Register(defaultRouter)
 	}
 	defaultRouter.Use(middleware.Cors()) // 跨域
 	apiGroup := defaultRouter.Group("api/v1")

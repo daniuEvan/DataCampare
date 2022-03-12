@@ -17,10 +17,9 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"time"
 )
 
-type CornFuncFactory struct {
+type CronFuncFactory struct {
 	checkDateString             string                   // 检查日期 格式2006-01-02
 	maxCheckDateString          string                   // 检查日期 格式2006-01-02 23:59:59
 	schedulerInfo               engineType.SchedulerInfo // 所有调度的配置信息
@@ -30,7 +29,7 @@ type CornFuncFactory struct {
 	backendDBOption             dbLinkEngine.DataBaseOption
 }
 
-func NewCornFuncFactory(schedulerInfo engineType.SchedulerInfo) *CornFuncFactory {
+func NewCronFuncFactory(schedulerInfo engineType.SchedulerInfo) *CronFuncFactory {
 	backendDBOption := dbLinkEngine.DataBaseOption{
 		DBType:     "mysql",
 		DBHost:     global.ServerConfig.DatabaseInfo.MysqlInfo.Host,
@@ -39,48 +38,11 @@ func NewCornFuncFactory(schedulerInfo engineType.SchedulerInfo) *CornFuncFactory
 		DBUsername: global.ServerConfig.DatabaseInfo.MysqlInfo.Username,
 		DBPassword: global.ServerConfig.DatabaseInfo.MysqlInfo.Password,
 	}
-	return &CornFuncFactory{
-		schedulerInfo:   schedulerInfo,
-		backendDBOption: backendDBOption,
-	}
-}
-
-//
-// BuildCronFunc
-// @Description: 返回定时任务要执行的函数
-// @param schedulerInfo:
-// @return func(): 返回定时任务要执行的函数
-//
-func (c *CornFuncFactory) BuildCronFunc() engineType.CronHandler {
-	c.checkDateString = time.Now().Format("2006-01-02")
-	c.maxCheckDateString = c.checkDateString + " 23:59:59"
-	coreFunc := func() {
-		// 查询配置表
-		if err := c.queryConfigTable(); err != nil {
-			log.Println(err.Error())
-			return
-		}
-		// 初始化结果表
-		if err := c.initResultTable(); err != nil {
-			log.Println(err.Error())
-			return
-		}
-
-		// 查询源表和目标表 将更新sql写入chan
-		if err := c.querySourceAndTargetTable(); err != nil {
-			log.Println(err.Error())
-			return
-		}
-		// 更新结果表
-		if err := c.insertResultTable(); err != nil {
-			log.Println(err.Error())
-			return
-		}
-	}
-	return engineType.CronHandler{
-		SchedulerInfo: c.schedulerInfo,
-		CronScheduler: c.schedulerInfo["task_schedule"],
-		CornFunc:      coreFunc,
+	return &CronFuncFactory{
+		schedulerInfo:               schedulerInfo,
+		backendDBOption:             backendDBOption,
+		sourceAndTargetQuerySqlChan: make(chan map[string]string, 100),
+		resultTableInsertSqlChan:    make(chan string, 100),
 	}
 }
 
@@ -90,7 +52,8 @@ func (c *CornFuncFactory) BuildCronFunc() engineType.CronHandler {
 // @receiver c
 // @return error:
 //
-func (c *CornFuncFactory) queryConfigTable() error {
+func (c *CronFuncFactory) queryConfigTable() error {
+	c.configTableList = make([]map[string]string, 0)
 	configTableQuerySql := c.schedulerInfo["config_table_query_sql"]
 	go func() {
 		// config query sql 写入数据库
@@ -154,7 +117,7 @@ func (c *CornFuncFactory) queryConfigTable() error {
 // @receiver c
 // @return error:
 //
-func (c *CornFuncFactory) initResultTable() error {
+func (c *CronFuncFactory) initResultTable() error {
 	// config init sql 写入数据库
 	go func() {
 		insertSchedulerConfigTableInitSql := fmt.Sprintf(
@@ -235,45 +198,48 @@ func (c *CornFuncFactory) initResultTable() error {
 }
 
 //
+// buildOriginTableQuerySql
+// @Description: 构造 source 和 target 查询sql
+// @receiver c
+//
+func (c *CronFuncFactory) buildOriginTableQuerySql() {
+	// 构造 source 和target 查询sql
+	for _, item := range c.configTableList {
+		owner := item["owner"]
+		tablename := item["tablename"]
+		bdColumn := item["bd_column"]
+		sourceTableDBType := c.schedulerInfo["source_db_type"]
+		targetTableDBType := c.schedulerInfo["target_db_type"]
+		var sourceQuerySql string
+		var targetQuerySql string
+		// 判断是否存在 bd_column 列 拼接 源表和目标表查询sql
+		if len(bdColumn) > 0 {
+			sourceQuerySql = fmt.Sprintf(taskSql.SourceAndTargetTableHasBdQuerySqlMap[sourceTableDBType], bdColumn, owner, tablename, bdColumn, c.maxCheckDateString)
+			targetQuerySql = fmt.Sprintf(taskSql.SourceAndTargetTableHasBdQuerySqlMap[targetTableDBType], bdColumn, owner, tablename, bdColumn, c.maxCheckDateString)
+		} else {
+			sourceQuerySql = fmt.Sprintf(taskSql.SourceAndTargetTableNoBdQuerySqlMap[sourceTableDBType], owner, tablename)
+			targetQuerySql = fmt.Sprintf(taskSql.SourceAndTargetTableNoBdQuerySqlMap[targetTableDBType], owner, tablename)
+		}
+		// 将sql写入channel
+		c.sourceAndTargetQuerySqlChan <- map[string]string{
+			"sourceQuerySql": sourceQuerySql,
+			"targetQuerySql": targetQuerySql,
+			"owner":          owner,
+			"tablename":      tablename,
+			"bd_column":      bdColumn,
+		}
+
+	}
+	defer close(c.sourceAndTargetQuerySqlChan)
+}
+
+//
 // querySourceAndTargetTable
 // @Description: 查询源表和结果表
 // @receiver c
 // @return error:
 //
-func (c *CornFuncFactory) querySourceAndTargetTable() error {
-	c.sourceAndTargetQuerySqlChan = make(chan map[string]string, 100)
-	c.resultTableInsertSqlChan = make(chan string, 100)
-	// 构造 source 和target 查询sql
-	go func() {
-		for _, item := range c.configTableList {
-			owner := item["owner"]
-			tablename := item["tablename"]
-			bdColumn := item["bd_column"]
-			sourceTableDBType := c.schedulerInfo["source_db_type"]
-			targetTableDBType := c.schedulerInfo["target_db_type"]
-			var sourceQuerySql string
-			var targetQuerySql string
-			// 判断是否存在 bd_column 列 拼接 源表和目标表查询sql
-			if len(bdColumn) > 0 {
-				sourceQuerySql = fmt.Sprintf(taskSql.SourceAndTargetTableHasBdQuerySqlMap[sourceTableDBType], bdColumn, owner, tablename, bdColumn, c.maxCheckDateString)
-				targetQuerySql = fmt.Sprintf(taskSql.SourceAndTargetTableHasBdQuerySqlMap[targetTableDBType], bdColumn, owner, tablename, bdColumn, c.maxCheckDateString)
-			} else {
-				sourceQuerySql = fmt.Sprintf(taskSql.SourceAndTargetTableNoBdQuerySqlMap[sourceTableDBType], owner, tablename)
-				targetQuerySql = fmt.Sprintf(taskSql.SourceAndTargetTableNoBdQuerySqlMap[targetTableDBType], owner, tablename)
-			}
-			// 将sql写入channel
-			c.sourceAndTargetQuerySqlChan <- map[string]string{
-				"sourceQuerySql": sourceQuerySql,
-				"targetQuerySql": targetQuerySql,
-				"owner":          owner,
-				"tablename":      tablename,
-				"bd_column":      bdColumn,
-			}
-
-		}
-		// 将 source 和target 查询sql 写入完毕之后关闭sourceAndTargetQuerySqlChan
-		defer close(c.sourceAndTargetQuerySqlChan)
-	}()
+func (c *CronFuncFactory) querySourceAndTargetTable() error {
 	// 并发数
 	taskConcurrent, err := strconv.Atoi(c.schedulerInfo["task_concurrent"])
 	if err != nil {
@@ -305,6 +271,7 @@ func (c *CornFuncFactory) querySourceAndTargetTable() error {
 	// 构造结果表insert sql
 	for i := 0; i < taskConcurrent; i++ {
 		go func() {
+			defer waitGroup.Done()
 			sourceDBPort, err := strconv.Atoi(c.schedulerInfo["source_db_port"])
 			if err != nil {
 				log.Println(err.Error())
@@ -336,15 +303,14 @@ func (c *CornFuncFactory) querySourceAndTargetTable() error {
 				log.Println(err.Error())
 				return
 			}
+			defer sourceDBlinker.Close()
 			targetDBlinker, err := dbLinkEngine.GetDBLinker(targetDBOptions)
 			if err != nil {
 				log.Println(err.Error())
 				return
 			}
-			defer func() {
-				sourceDBlinker.Close()
-				targetDBlinker.Close()
-			}()
+			defer targetDBlinker.Close()
+			// for range 会在 sourceAndTargetQuerySqlChan 关闭且读取完毕 之后跳出
 			for itemMap := range c.sourceAndTargetQuerySqlChan {
 				sourceQuerySql := itemMap["sourceQuerySql"]
 				targetQuerySql := itemMap["targetQuerySql"]
@@ -354,24 +320,24 @@ func (c *CornFuncFactory) querySourceAndTargetTable() error {
 				sourceQueryRes, err := sourceDBlinker.Query(sourceQuerySql)
 				if err != nil {
 					log.Println(err.Error())
-					return
+					continue
 				}
 				sourceQueryResBytes, err := json.Marshal(sourceQueryRes)
 				if err != nil {
 					log.Println(err.Error())
-					return
+					continue
 				}
 				sourceValues := gjson.ParseBytes(sourceQueryResBytes).Get("values").Array()[0].Array()
 				sourceCount, sourceMax := sourceValues[0].String(), sourceValues[1].String()
 				targetQueryRes, err := targetDBlinker.Query(targetQuerySql)
 				if err != nil {
 					log.Println(err.Error())
-					return
+					continue
 				}
 				targetQueryResBytes, err := json.Marshal(targetQueryRes)
 				if err != nil {
 					log.Println(err.Error())
-					return
+					continue
 				}
 				targetValues := gjson.ParseBytes(targetQueryResBytes).Get("values").Array()[0].Array()
 				targetCount, targetMax := targetValues[0].String(), targetValues[1].String()
@@ -379,8 +345,6 @@ func (c *CornFuncFactory) querySourceAndTargetTable() error {
 				resultInsertSql := fmt.Sprintf(c.schedulerInfo["result_table_insert_sql"], sourceCount, targetCount, sourceMax, targetMax, c.checkDateString, owner, tablename)
 				c.resultTableInsertSqlChan <- resultInsertSql
 			}
-			// for range 会在 sourceAndTargetQuerySqlChan 关闭且读取完毕 之后跳出
-			waitGroup.Done()
 		}()
 	}
 	waitGroup.Wait()
@@ -395,7 +359,7 @@ func (c *CornFuncFactory) querySourceAndTargetTable() error {
 // @receiver c
 // @return error:
 //
-func (c CornFuncFactory) insertResultTable() error {
+func (c *CronFuncFactory) insertResultTable() error {
 	taskConcurrent, err := strconv.Atoi(c.schedulerInfo["task_concurrent"])
 	if err != nil {
 		log.Println(err.Error())
@@ -404,26 +368,26 @@ func (c CornFuncFactory) insertResultTable() error {
 	var waitGroup sync.WaitGroup
 	waitGroup.Add(taskConcurrent)
 	for i := 0; i < taskConcurrent; i++ {
-		resultTableDBPort, err := strconv.Atoi(c.schedulerInfo["result_db_port"])
-		if err != nil {
-			log.Println(err.Error())
-			return err
-		}
-		resultBDOption := dbLinkEngine.DataBaseOption{
-			DBType:     c.schedulerInfo["result_db_type"],
-			DBHost:     c.schedulerInfo["result_db_host"],
-			DBPort:     uint(resultTableDBPort),
-			DBName:     c.schedulerInfo["result_db_name"],
-			DBUsername: c.schedulerInfo["result_db_username"],
-			DBPassword: c.schedulerInfo["result_db_password"],
-		}
-		resultDBLinker, err := dbLinkEngine.GetDBLinker(resultBDOption)
-		defer resultDBLinker.Close()
-		if err != nil {
-			log.Println(err.Error())
-			return err
-		}
 		go func() {
+			resultTableDBPort, err := strconv.Atoi(c.schedulerInfo["result_db_port"])
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+			resultBDOption := dbLinkEngine.DataBaseOption{
+				DBType:     c.schedulerInfo["result_db_type"],
+				DBHost:     c.schedulerInfo["result_db_host"],
+				DBPort:     uint(resultTableDBPort),
+				DBName:     c.schedulerInfo["result_db_name"],
+				DBUsername: c.schedulerInfo["result_db_username"],
+				DBPassword: c.schedulerInfo["result_db_password"],
+			}
+			resultDBLinker, err := dbLinkEngine.GetDBLinker(resultBDOption)
+			if err != nil {
+				log.Println(err.Error())
+				return
+			}
+			defer resultDBLinker.Close()
 			for insertSql := range c.resultTableInsertSqlChan {
 				_, err := resultDBLinker.Exec(insertSql)
 				if err != nil {
@@ -431,7 +395,7 @@ func (c CornFuncFactory) insertResultTable() error {
 					continue
 				}
 			}
-			// for range 会在 sourceAndTargetQuerySqlChan 关闭且读取完毕 之后跳出
+			// for range 会在 resultTableInsertSqlChan 关闭且读取完毕 之后跳出
 			waitGroup.Done()
 		}()
 	}

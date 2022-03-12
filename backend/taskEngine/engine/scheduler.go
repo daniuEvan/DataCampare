@@ -75,7 +75,7 @@ func NewScheduler(backendDBOptions dbLinkEngine.DataBaseOption) (*Scheduler, err
 	}
 	return &Scheduler{
 		schedulerInfoList:         schedulerInfoList,
-		cron:                      cron.New(),
+		cron:                      cron.New(cron.WithSeconds()),
 		startedSchedulerMap:       make(map[int]engineType.SchedulerInfo),
 		schedulerWithCronGraphMap: make(map[int]cron.EntryID),
 		schedulerStartStatus:      make(map[int]engineType.SchedulerStartStatus),
@@ -101,8 +101,7 @@ func (s *Scheduler) GetAllScheduler() map[int]engineType.SchedulerStartStatus {
 //
 func (s *Scheduler) BuildCronHandlers() (cronHandlerList []engineType.CronHandler) {
 	for _, schedulerInfo := range s.schedulerInfoList {
-		coreFactory := NewCornFuncFactory(schedulerInfo)
-		cronHandler := coreFactory.BuildCronFunc() // 构造定时任务
+		cronHandler := NewCronHandler(schedulerInfo) // 构造定时任务
 		cronHandlerList = append(cronHandlerList, cronHandler)
 	}
 	return cronHandlerList
@@ -116,12 +115,13 @@ func (s *Scheduler) BuildCronHandlers() (cronHandlerList []engineType.CronHandle
 // @return err:
 //
 func (s *Scheduler) BuildCronHandler(schedulerId int) (cronHandler engineType.CronHandler, err error) {
-	link, err := dbLinkEngine.NewMysqlLink(s.backendDBOptions)
+	dbLinker, err := dbLinkEngine.NewMysqlLink(s.backendDBOptions)
 	if err != nil {
-		log.Fatalln(err.Error())
-		return cronHandler, err
+		log.Println(err.Error())
+		return
 	}
-	queryRes, err := link.Query(taskSql.SchedulerInfoQuerySQL + fmt.Sprintf(" and s.id = %d", schedulerId))
+	defer dbLinker.Close()
+	queryRes, err := dbLinker.Query(taskSql.SchedulerInfoQuerySQL + fmt.Sprintf(" and s.id = %d", schedulerId))
 	if err != nil {
 		return cronHandler, err
 	}
@@ -156,8 +156,8 @@ func (s *Scheduler) BuildCronHandler(schedulerId int) (cronHandler engineType.Cr
 	schedulerInfo["target_db_password"] = utils.DecodeBase64ToString(schedulerInfo["target_db_password"])
 	schedulerInfo["result_db_password"] = utils.DecodeBase64ToString(schedulerInfo["result_db_password"])
 	s.schedulerInfoList = append(s.schedulerInfoList, schedulerInfo)
-	coreFactory := NewCornFuncFactory(schedulerInfo)
-	cronHandler = coreFactory.BuildCronFunc() // 构造定时任务
+	//coreFactory := NewCronFuncFactory(schedulerInfo)
+	cronHandler = NewCronHandler(schedulerInfo) // 构造定时任务
 	return cronHandler, nil
 }
 
