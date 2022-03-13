@@ -1,10 +1,15 @@
-FROM centos
+FROM centos:centos7.9.2009
+LABEL version="0.1"
+LABEL maintainer="big_ox@163.com"
 
-RUN ["mkdir","-p","/opt/sweetcake"]
-WORKDIR "/opt/sweetcake"
-CMD ["pwd"]
-COPY ./main /opt/sweetcake
-CMD ["/bin/bash ./main"]
-CMD ["yum install vim -y"]
-CMD ["ping", "127.0.0.1"]
+EXPOSE 9090
+
+RUN mkdir -p /apps/DataCompare/backend
+COPY ./data-compare /apps/DataCompare/backend/
+RUN chmod +x /apps/DataCompare/backend/data-compare
+COPY ./config-pro.yaml /apps/DataCompare/backend/
+RUN export GIN_MODE=release
+
+WORKDIR /apps/DataCompare/backend/
+CMD ["nohup" ,"./data-compare" , "&"]
 

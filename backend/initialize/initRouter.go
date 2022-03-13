@@ -12,15 +12,17 @@ import (
 	"DataCompare/handler/router/userRouter"
 	"DataCompare/middleware"
 	"DataCompare/utils"
-	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )
 
 func InitRouters() *gin.Engine {
-	defaultRouter := gin.New()
+	var defaultRouter *gin.Engine
 	if utils.IsDebugEnv() {
-		defaultRouter = gin.Default()
-		pprof.Register(defaultRouter)
+		//pprof.Register(defaultRouter)
+		defaultRouter = gin.New()
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+		defaultRouter = gin.New()
 	}
 	defaultRouter.Use(middleware.Cors()) // 跨域
 	apiGroup := defaultRouter.Group("api/v1")

@@ -1,22 +1,26 @@
-host: 127.0.0.1
+host: 0.0.0.0
 port: 9090
 log:
-  logLevel: debug                # debug, info, warn, error, dpanic, panic, fatal
-  logPath: ./log/api.log         # 日志绝对路径
-  logInConsole: true           # 打印到控制台
-  maxSize: 1                    # 在进行切割之前，日志文件的最大大小（以MB为单位)
-  maxBackups: 7                 # 保留旧文件的最大个数
+  logLevel: info                # debug, info, warn, error, dpanic, panic, fatal
+  logPath: ./logs/api.log       # 日志绝对路径
+  logInConsole: true            # 打印到控制台
+  maxSize: 100                  # 在进行切割之前，日志文件的最大大小（以MB为单位)
+  maxBackups: 3                 # 保留旧文件的最大个数
   maxAge: 30                    # 保留旧文件的最大天数
   mompress: false               # 是否压缩/归档旧文件
+
+# orm 配置
+orm:
+  tablePrefix: compare
 
 database:
   # mysql conf
   mysql:
     dbname: data_compare
-    host: 127.0.0.1
+    host: 101.201.211.113
     port: 3306
     username: root
-    password:
+    password: Abcd@123456
 
   # redis conf (暂不启用)
   redis:
@@ -33,7 +37,7 @@ database:
 ormDatabasePool:
   status: disable            # enable 开启orm数据库连接池 disable 不启用orm数据库连接池
   maxIdleConns: 10           # 空闲连接池中连接的最大数量
-  maxOpenConns: 3000         # 打开数据库连接的最大数量
+  maxOpenConns: 60         # 打开数据库连接的最大数量
   connMaxLifetime: 360      # 连接可复用的最大时间(单位:s)
 
 auth:
@@ -58,7 +62,3 @@ sm:
   CodeLen: 4
   VerifySmBaseUrl: "https://api.netease.im/sms/verifycode.action"
 
-# 文件存储路径
-filesDir:
-  assetsDir: assets # 静态文件夹名称
-  goodsImgDir: goods_imgs # 商品图片文件夹名称

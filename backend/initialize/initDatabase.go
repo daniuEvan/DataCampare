@@ -25,7 +25,7 @@ func InitDatabase() error {
 	err = database.InitRedisPool()
 	if err != nil {
 		global.Logger.Error("初始化 redis 连接异常:", zap.String("error", err.Error()))
-		return err
+		//return err
 	}
 	return nil
 }

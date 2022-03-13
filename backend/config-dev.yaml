@@ -17,7 +17,7 @@ database:
   # mysql conf
   mysql:
     dbname: data_compare
-    host: 127.0.0.1
+    host: MacBook.local
     port: 3306
     username: root
     password: Abcd@123456
