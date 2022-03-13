@@ -9,17 +9,62 @@
                 <i class="el-icon-coffee-cup" style="margin-right: 10px"></i> 空空如也
               </div>
             </el-card>
-            <el-card v-for="o in schedulerAllItems" :key="o" class="box-card"
-                     :style=" (o['SchedulerEnable'] && o['SchedulerStatus'] ? 'box-shadow: 0 2px 20px 0 rgb(1 180 55 / 30%);border: 1px solid #f2fff3;':'')+
-                      (o['SchedulerEnable'] && !o['SchedulerStatus'] ? 'box-shadow: 0 2px 20px 0 rgb(250 0 0 / 20%);border: 1px solid #ffdfdd;':'')"
-            >
+            <!--            <el-card v-for="o in schedulerAllItems" :key="o" class="box-card"-->
+            <!--                     :style=" (o['SchedulerEnable'] && o['SchedulerStatus'] ? 'box-shadow: 0 2px 20px 0 rgb(1 180 55 / 30%);border: 1px solid #f2fff3;':'')+-->
+            <!--                      (o['SchedulerEnable'] && !o['SchedulerStatus'] ? 'box-shadow: 0 2px 20px 0 rgb(250 0 0 / 20%);border: 1px solid #ffdfdd;':'')"-->
+            <!--            >-->
+            <!--              <div class="text item">-->
+            <!--                <SchedulerInfoPopover :popover-msg="o"></SchedulerInfoPopover>-->
+            <!--                {{ o["SchedulerName"] }}-->
+            <!--                <el-switch-->
+            <!--                    @change="schedulerStatusSwitch(o['SchedulerId'],o['SchedulerEnable'])"-->
+            <!--                    style="float: right; margin-left: 10px"-->
+            <!--                    v-model="o['SchedulerEnable']"-->
+            <!--                >-->
+            <!--                </el-switch>-->
+            <!--                <MsgPopover style="float: right" v-if="o['SchedulerEnable'] && !o['SchedulerStatus']"-->
+            <!--                            :popoverMsg="{'title':'错误信息','content':o['ErrorMsg']}"></MsgPopover>-->
+            <!--              </div>-->
+            <!--            </el-card>-->
+            <el-card v-for="o in schedulerSuccessItems" :key="o" class="box-card box-card-success">
               <div class="text item">
                 <SchedulerInfoPopover :popover-msg="o"></SchedulerInfoPopover>
                 {{ o["SchedulerName"] }}
-                <MsgPopover style="float: right" v-if="o['SchedulerEnable'] && !o['SchedulerStatus']"
-                            :popoverMsg="{'title':'错误信息','content':o['ErrorMsg']}"></MsgPopover>
+                <el-switch
+                    @change="schedulerStatusSwitch(o['SchedulerId'],o['SchedulerEnable'])"
+                    style="float: right; margin-left: 10px"
+                    v-model="o['SchedulerEnable']"
+                >
+                </el-switch>
               </div>
             </el-card>
+            <el-card v-for="o in schedulerFailItems" :key="o" class="box-card box-card-fail">
+              <div class="text item">
+                <SchedulerInfoPopover :popover-msg="o"></SchedulerInfoPopover>
+                {{ o["SchedulerName"] }}
+                <el-switch
+                    @change="schedulerStatusSwitch(o['SchedulerId'],o['SchedulerEnable'])"
+                    style="float: right; margin-left: 10px"
+                    v-model="o['SchedulerEnable']"
+                >
+                </el-switch>
+                <MsgPopover style="float: right" :popoverMsg="{'title':'错误信息','content':o['ErrorMsg']}"></MsgPopover>
+              </div>
+            </el-card>
+            <el-card v-for="o in schedulerBanItems" :key="o" class="box-card">
+              <div class="text item">
+                <SchedulerInfoPopover :popover-msg="o"></SchedulerInfoPopover>
+                {{ o["SchedulerName"] }}
+                <el-switch
+                    @change="schedulerStatusSwitch(o['SchedulerId'],o['SchedulerEnable'])"
+                    style="float: right; margin-left: 10px"
+                    v-model="o['SchedulerEnable']"
+                >
+                </el-switch>
+              </div>
+            </el-card>
+
+
           </el-col>
         </el-tab-pane>
         <el-tab-pane label="启动成功调度">
@@ -33,6 +78,12 @@
               <div class="text item">
                 <SchedulerInfoPopover :popover-msg="o"></SchedulerInfoPopover>
                 {{ o["SchedulerName"] }}
+                <el-switch
+                    @change="schedulerStatusSwitch(o['SchedulerId'],o['SchedulerEnable'])"
+                    style="float: right; margin-left: 10px"
+                    v-model="o['SchedulerEnable']"
+                >
+                </el-switch>
               </div>
             </el-card>
           </el-col>
@@ -49,6 +100,12 @@
               <div class="text item">
                 <SchedulerInfoPopover :popover-msg="o"></SchedulerInfoPopover>
                 {{ o["SchedulerName"] }}
+                <el-switch
+                    @change="schedulerStatusSwitch(o['SchedulerId'],o['SchedulerEnable'])"
+                    style="float: right; margin-left: 10px"
+                    v-model="o['SchedulerEnable']"
+                >
+                </el-switch>
                 <MsgPopover style="float: right" :popoverMsg="{'title':'错误信息','content':o['ErrorMsg']}"></MsgPopover>
               </div>
             </el-card>
@@ -65,6 +122,12 @@
               <div class="text item">
                 <SchedulerInfoPopover :popover-msg="o"></SchedulerInfoPopover>
                 {{ o["SchedulerName"] }}
+                <el-switch
+                    @change="schedulerStatusSwitch(o['SchedulerId'],o['SchedulerEnable'])"
+                    style="float: right; margin-left: 10px"
+                    v-model="o['SchedulerEnable']"
+                >
+                </el-switch>
               </div>
             </el-card>
           </el-col>
@@ -86,7 +149,7 @@ import SchedulerInfoPopover from "@/views/watch/SchedulerInfoPopover";
 export default {
   name: "Index",
   components: {
-    MsgPopover,SchedulerInfoPopover
+    MsgPopover, SchedulerInfoPopover
   },
   data() {
     return {
@@ -94,6 +157,7 @@ export default {
       schedulerSuccessItems: [],
       schedulerFailItems: [],
       schedulerBanItems: [],
+      changeStatus: false,
     }
   },
   methods: {
@@ -118,6 +182,24 @@ export default {
           })
           .catch(function (err) {
             _this.$message.error(err)
+          })
+    },
+    schedulerStatusSwitch(id, enable) {
+      let _this = this
+      request.put(`/scheduler/${id}/${enable}/`)
+          .then(function (response) {
+            if (response.data.code !== 200) {
+              _this.$message.error(response.data.msg)
+              return null
+            }
+            setTimeout(function () {
+              _this.getSchedulerStatus()
+            }, 1000);
+            // _this.$message.success("调度已开启");
+          })
+          .catch(function (err) {
+            _this.$message.error(err)
+            _this.getSchedulerStatus()
           })
     }
   },

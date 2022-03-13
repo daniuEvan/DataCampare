@@ -18,6 +18,7 @@ import (
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"net/http"
+	"strconv"
 )
 
 //
@@ -73,4 +74,38 @@ func UpdateScheduler(ctx *gin.Context) {
 		return
 	}
 	response.Success(ctx, dbSchedulerModel, "更新调度成功")
+}
+
+//
+// EnableScheduler
+// @Description: 更新调度信息
+// @param ctx:
+//
+func EnableScheduler(ctx *gin.Context) {
+	db, err := database.GetMysqlDB(ctx)
+	if err != nil {
+		global.Logger.Error("调度开关", zap.String("msg", err.Error()))
+		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
+		return
+	}
+	schedulerId, err := strconv.Atoi(ctx.Param("scheduler_id"))
+	if err != nil {
+		global.Logger.Error("解析调度id", zap.String("msg", err.Error()))
+		response.Response(ctx, http.StatusBadRequest, 400, nil, customError.BadRequestError.Error())
+		return
+	}
+	schedulerStatus, err := strconv.ParseBool(ctx.Param("scheduler_status"))
+	if err != nil {
+		global.Logger.Error("解析调度状态", zap.String("msg", err.Error()))
+		response.Response(ctx, http.StatusBadRequest, 400, nil, customError.BadRequestError.Error())
+		return
+	}
+	var dbSchedulerModel taskModel.SchedulerList
+	err = db.Model(&dbSchedulerModel).Where("id = ?", schedulerId).Update("scheduler_status", schedulerStatus).Error
+	if err != nil {
+		global.Logger.Error("更新调度状态", zap.String("msg", err.Error()))
+		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
+		return
+	}
+	response.Success(ctx, nil, "更新调度状态成功")
 }

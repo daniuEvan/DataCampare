@@ -77,7 +77,7 @@ func NewScheduler(backendDBOptions dbLinkEngine.DataBaseOption) (*Scheduler, err
 	}
 	return &Scheduler{
 		schedulerInfoList:         schedulerInfoList,
-		cron:                      cron.New(cron.WithSeconds()),
+		cron:                      cron.New(),
 		startedSchedulerMap:       make(map[int]engineType.SchedulerInfo),
 		schedulerWithCronGraphMap: make(map[int]cron.EntryID),
 		schedulerStartStatus:      make(map[int]engineType.SchedulerStartStatus),

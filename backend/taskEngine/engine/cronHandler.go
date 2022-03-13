@@ -13,10 +13,10 @@ import (
 )
 
 func NewCronHandler(schedulerInfo engineType.SchedulerInfo) engineType.CronHandler {
-	nowDate := time.Now().Format("2006-01-02")
 	schedulerName := schedulerInfo["scheduler_name"]
 	logger := cronLogger.CronLogger(schedulerName + ".log")
 	cronFunc := func() {
+		nowDate := time.Now().Format("2006-01-02")
 		logger.Info("调度 " + schedulerName + " :开始")
 		coreFactory := NewCronFuncFactory(schedulerInfo, logger)
 		coreFactory.checkDateString = nowDate

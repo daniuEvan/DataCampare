@@ -13,7 +13,7 @@ import "gorm.io/gorm"
 //
 type SchedulerList struct {
 	gorm.Model
-	SchedulerName        string `gorm:"type:varchar(100);not null"`
+	SchedulerName        string `gorm:"type:varchar(100);not null;unique"`
 	TaskId               uint   `gorm:"type:int;not null;comment:任务id"`
 	TaskSchedule         string `gorm:"type:varchar(20);comment:调度表达式"`
 	ConfigTableQuerySQL  string `gorm:"type:text;not null;comment:配置库查询sql"`
