@@ -20,6 +20,7 @@ log/
 logs/
 test/
 *.log
+config-pro.yaml
 # test file
 *_test.go
 
@@ -48,3 +49,4 @@ pnpm-debug.log*
 *.njsproj
 *.sln
 *.sw?
+.env.production
