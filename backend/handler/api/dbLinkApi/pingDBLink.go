@@ -44,10 +44,12 @@ func PingDBLink(ctx *gin.Context) {
 	case "postgres":
 		dbLinker, err = dbLinkEngine.NewPostgresLink(dbOptions)
 	default:
+		global.Logger.Error("测试数据库连接", zap.String("msg", err.Error()))
 		response.Response(ctx, http.StatusBadRequest, 400, nil, customError.BadRequestError.Error())
 		return
 	}
 	if err != nil {
+		global.Logger.Error("测试数据库连接", zap.String("msg", err.Error()))
 		response.Response(ctx, http.StatusBadRequest, 400, nil, customError.DatabaseConnectError.Error())
 		return
 	}

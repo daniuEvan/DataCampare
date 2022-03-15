@@ -23,16 +23,14 @@ type VerticaLink struct {
 
 func NewVerticaLink(dbInfo DataBaseOption) (*VerticaLink, error) {
 	logger.SetLogLevel(logger.WARN)
+	dataSourceName := "vertica://" +
+		dbInfo.DBUsername + ":" +
+		dbInfo.DBPassword +
+		fmt.Sprintf("@%s:%d/%s", dbInfo.DBHost, dbInfo.DBPort, dbInfo.DBName)
+
 	conn, err := sql.Open(
 		"vertica",
-		fmt.Sprintf(
-			"vertica://%s:%s@%s:%d/%s",
-			dbInfo.DBUsername,
-			dbInfo.DBPassword,
-			dbInfo.DBHost,
-			dbInfo.DBPort,
-			dbInfo.DBName,
-		),
+		dataSourceName,
 	)
 	if err != nil {
 		return nil, err

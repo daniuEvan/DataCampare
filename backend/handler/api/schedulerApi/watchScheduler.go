@@ -46,6 +46,7 @@ func WatchScheduler(ctx *gin.Context) {
 		schedulerName := schedulerInfo["scheduler_name"]
 		taskConcurrent, err := strconv.Atoi(schedulerInfo["task_concurrent"])
 		if err != nil {
+			global.Logger.Error("监控调度接口", zap.String("msg", err.Error()))
 			global.Logger.Error("监控调度接口 taskConcurrent 异常", zap.String("msg", err.Error()))
 			taskConcurrent = 0
 		}

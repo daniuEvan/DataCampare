@@ -22,16 +22,13 @@ type MysqlLink struct {
 
 func NewMysqlLink(dbInfo DataBaseOption) (*MysqlLink, error) {
 	// "用户名:密码@[连接方式](主机名:端口号)/数据库名"
+	dataSourceName := dbInfo.DBUsername + ":" +
+		dbInfo.DBPassword +
+		fmt.Sprintf("@(%s:%d)/%s", dbInfo.DBHost, dbInfo.DBPort, dbInfo.DBName)
+
 	conn, err := sql.Open(
 		"mysql",
-		fmt.Sprintf(
-			"%s:%s@(%s:%d)/%s",
-			dbInfo.DBUsername,
-			dbInfo.DBPassword,
-			dbInfo.DBHost,
-			dbInfo.DBPort,
-			dbInfo.DBName,
-		),
+		dataSourceName,
 	)
 	if err != nil {
 		return nil, err

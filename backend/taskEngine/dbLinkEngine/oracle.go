@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"fmt"
 	_ "github.com/sijms/go-ora/v2"
+	"net/url"
 )
 
 //
@@ -22,16 +23,14 @@ type OracleLink struct {
 
 func NewOracleLink(dbInfo DataBaseOption) (*OracleLink, error) {
 	// "oracle://user:pass@server/service_name"
+	dataSourceName := "oracle://" +
+		url.QueryEscape(dbInfo.DBUsername) + ":" +
+		url.QueryEscape(dbInfo.DBPassword) +
+		fmt.Sprintf("@%s:%d/%s", dbInfo.DBHost, dbInfo.DBPort, dbInfo.DBName)
+
 	conn, err := sql.Open(
 		"oracle",
-		fmt.Sprintf(
-			"oracle://%s:%s@%s:%d/%s",
-			dbInfo.DBUsername,
-			dbInfo.DBPassword,
-			dbInfo.DBHost,
-			dbInfo.DBPort,
-			dbInfo.DBName,
-		),
+		dataSourceName,
 	)
 	if err != nil {
 		return nil, err

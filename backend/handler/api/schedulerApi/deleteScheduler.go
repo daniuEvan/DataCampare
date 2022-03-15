@@ -38,6 +38,7 @@ func DeleteScheduler(ctx *gin.Context) {
 	var dbScheduler taskModel.SchedulerList
 	err = db.Where("id = ? ", dbLinkId).First(&dbScheduler).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) || dbScheduler.ID == 0 {
+		global.Logger.Error("删除调度", zap.String("msg", err.Error()))
 		response.Response(ctx, http.StatusNotFound, 422, nil, customError.UnprocessableEntityError.Error())
 		return
 	} else if err != nil {

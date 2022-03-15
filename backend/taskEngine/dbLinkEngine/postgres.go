@@ -22,16 +22,14 @@ type PostgresLink struct {
 
 func NewPostgresLink(dbInfo DataBaseOption) (*PostgresLink, error) {
 	// "用户名:密码@[连接方式](主机名:端口号)/数据库名"
+	dataSourceName := "postgres://" +
+		dbInfo.DBUsername + ":" +
+		dbInfo.DBPassword +
+		fmt.Sprintf("@%s:%d/%s?sslmode=disable", dbInfo.DBHost, dbInfo.DBPort, dbInfo.DBName)
+
 	conn, err := sql.Open(
 		"postgres",
-		fmt.Sprintf(
-			"postgres://%s:%s@%s:%d/%s?sslmode=disable",
-			dbInfo.DBUsername,
-			dbInfo.DBPassword,
-			dbInfo.DBHost,
-			dbInfo.DBPort,
-			dbInfo.DBName,
-		),
+		dataSourceName,
 	)
 	if err != nil {
 		return nil, err

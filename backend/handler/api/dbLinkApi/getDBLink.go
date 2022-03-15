@@ -38,6 +38,7 @@ func GetDBLinkInfo(ctx *gin.Context) {
 	var dbLink taskModel.DBLink
 	err = db.Where("id = ? ", dbLinkId).First(&dbLink).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) || dbLink.ID == 0 {
+		global.Logger.Error("获取数据库连接信息", zap.String("msg", err.Error()))
 		response.Response(ctx, http.StatusNotFound, 422, nil, customError.UnprocessableEntityError.Error())
 		return
 	} else if err != nil {

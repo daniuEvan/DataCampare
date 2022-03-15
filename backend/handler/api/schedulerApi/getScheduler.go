@@ -44,6 +44,7 @@ func GetSchedulerInfo(ctx *gin.Context) {
 		"left join compare_task_list t on  compare_scheduler_list.task_id =  t.id ",
 	).Where("compare_scheduler_list.id = ? ", schedulerId).Scan(&schedulerRes).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) || schedulerRes.ID == 0 {
+		global.Logger.Error("获取调度信息", zap.String("msg", err.Error()))
 		response.Response(ctx, http.StatusNotFound, 422, nil, customError.UnprocessableEntityError.Error())
 		return
 	} else if err != nil {
