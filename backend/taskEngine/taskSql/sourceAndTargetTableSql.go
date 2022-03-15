@@ -15,9 +15,9 @@ var (
 	}
 	// SourceAndTargetTableNoBdQuerySqlMap 源表查询sql(不存在bd_column)
 	SourceAndTargetTableNoBdQuerySqlMap = map[string]string{
-		"mysql":    `select count(*) count,'' max from %s.%s `,
-		"oracle":   `select /*+ parallel(16)*/count(*) count,'' max from %s.%s `,
-		"postgres": `select count(*) count,'' max from %s.%s `,
-		"vertica":  `select count(*) count,'' max from %s.%s `,
+		"mysql":    `select count(*) count,'-' max from %s.%s `,
+		"oracle":   `select /*+ parallel(16)*/count(*) count,'-' max from %s.%s `,
+		"postgres": `select count(*) count,'-'  max from %s.%s `,
+		"vertica":  `select count(*) count,'-'  max from %s.%s `,
 	}
 )

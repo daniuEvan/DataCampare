@@ -23,7 +23,7 @@ test/
 config-pro.yaml
 # test file
 *_test.go
-
+data-compare
 ### Vue template
 
 DS_Store

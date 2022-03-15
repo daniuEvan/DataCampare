@@ -96,7 +96,7 @@ func (c *CronFuncFactory) queryConfigTable() error {
 	defer dbLinker.Close()
 	queryRes, err := dbLinker.Query(configTableQuerySql)
 	if err != nil {
-		c.logger.Error(err.Error())
+		c.logger.Error(err.Error(), zap.String("configTableQuerySqlErrorMsg", configTableQuerySql))
 		return err
 	}
 	byteSliceRes, err := json.Marshal(queryRes)
@@ -106,7 +106,7 @@ func (c *CronFuncFactory) queryConfigTable() error {
 	for _, values := range infoValues {
 		configInfo := make(map[string]string)
 		for j, value := range values.Array() {
-			configInfo[infoKeys[j].String()] = value.String()
+			configInfo[strings.ToLower(infoKeys[j].String())] = value.String()
 		}
 		c.configTableList = append(c.configTableList, configInfo)
 	}
@@ -159,6 +159,7 @@ func (c *CronFuncFactory) initResultTable() error {
 	}
 	queryRes, err := dbLinker.Query(resultTableInitCheckSql)
 	if err != nil {
+		c.logger.Error(err.Error(), zap.String("resultTableInitCheckSqlErrorMsg", resultTableInitCheckSql))
 		c.logger.Error(err.Error())
 		return err
 	}
@@ -264,6 +265,7 @@ func (c *CronFuncFactory) querySourceAndTargetTable() error {
 		defer backendDBLinker.Close()
 		_, err = backendDBLinker.Exec(insertSchedulerResultTableInsertSql)
 		if err != nil {
+			c.logger.Error(err.Error(), zap.String("insertSchedulerResultTableInsertSqlErrorMsg", insertSchedulerResultTableInsertSql))
 			c.logger.Error(err.Error())
 			return
 		}
@@ -319,7 +321,7 @@ func (c *CronFuncFactory) querySourceAndTargetTable() error {
 				// 查询源端和目标端数据
 				sourceQueryRes, err := sourceDBlinker.Query(sourceQuerySql)
 				if err != nil {
-					c.logger.Error(err.Error())
+					c.logger.Error(err.Error(), zap.String("sourceQuerySqlErrorMsg", sourceQuerySql))
 					continue
 				}
 				sourceQueryResBytes, err := json.Marshal(sourceQueryRes)
@@ -331,6 +333,7 @@ func (c *CronFuncFactory) querySourceAndTargetTable() error {
 				sourceCount, sourceMax := sourceValues[0].String(), sourceValues[1].String()
 				targetQueryRes, err := targetDBlinker.Query(targetQuerySql)
 				if err != nil {
+					c.logger.Error(err.Error(), zap.String("targetQuerySqlErrorMsg", targetQuerySql))
 					c.logger.Error(err.Error())
 					continue
 				}
@@ -391,6 +394,7 @@ func (c *CronFuncFactory) insertResultTable() error {
 			for insertSql := range c.resultTableInsertSqlChan {
 				_, err := resultDBLinker.Exec(insertSql)
 				if err != nil {
+					c.logger.Error(err.Error(), zap.String("insertSqlErrorMsg", insertSql))
 					c.logger.Error(err.Error())
 					continue
 				}
