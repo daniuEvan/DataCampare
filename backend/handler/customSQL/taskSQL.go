@@ -53,4 +53,12 @@ var (
 					AND d2.deleted_at IS NULL 
 					AND d3.deleted_at IS NULL 
 					AND d4.deleted_at IS NULL`
+
+	// ResultTableSQLMap 结果表查询sql
+	ResultTableSQLMap = map[string]string{
+		"mysql":    `SELECT * from %s.%s where check_time >= '%s' and check_time <= '%s' limit %d offset %d`,
+		"oracle":   `select * from (select t.*,ROWNUM ROWNUM_ from (select * from %s.%s where check_time <= to_date('%s', 'yy-MM-dd') and check_time <= to_date('%s', 'yy-MM-dd')) t where ROWNUM <=%d) where ROWNUM_ >%d `,
+		"postgres": `SELECT * from %s.%s where check_time >= '%s' and check_time <= '%s' limit %d offset %d`,
+		"vertica":  `SELECT * from %s.%s where check_time >= '%s' and check_time <= '%s' limit %d offset %d`,
+	}
 )

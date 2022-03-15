@@ -12,14 +12,15 @@ import (
 	"DataCompare/handler/router/userRouter"
 	"DataCompare/middleware"
 	"DataCompare/utils"
+	"github.com/gin-contrib/pprof"
 	"github.com/gin-gonic/gin"
 )
 
 func InitRouters() *gin.Engine {
 	var defaultRouter *gin.Engine
 	if utils.IsDebugEnv() {
-		//pprof.Register(defaultRouter)
-		defaultRouter = gin.New()
+		defaultRouter = gin.Default()
+		pprof.Register(defaultRouter)
 	} else {
 		gin.SetMode(gin.ReleaseMode)
 		defaultRouter = gin.New()
@@ -32,5 +33,6 @@ func InitRouters() *gin.Engine {
 	taskRouter.InitDBLinkRouter(apiGroup)    // 数据比对 数据库连接
 	taskRouter.InitTaskRouter(apiGroup)      // 数据比对 任务
 	taskRouter.InitSchedulerRouter(apiGroup) // 数据比对 调度
+	taskRouter.InitResultRouter(apiGroup)    // 数据比对 调度
 	return defaultRouter
 }
