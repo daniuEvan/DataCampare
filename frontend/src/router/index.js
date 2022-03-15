@@ -5,6 +5,7 @@ import baseRouter from "@/router/moduls/base";
 import dbLinkRouter from "@/router/moduls/dbLink";
 import taskRouter from "@/router/moduls/task";
 import schedulerRouter from "@/router/moduls/scheduler";
+import resultRouter from "@/router/moduls/result";
 
 Vue.use(VueRouter);
 
@@ -13,6 +14,7 @@ const routes = [
     ...dbLinkRouter,
     ...taskRouter,
     ...schedulerRouter,
+    ...resultRouter,
     // ...userRouter,
 ];
 
