@@ -130,15 +130,15 @@ export default {
         request.delete(`/db_link/${id}/`)
             .then(function (response) {
               if (response.data.code !== 200) {
-                _this.$message.error({message: '连接删除失败' + response.data.msg,});
+                _this.$message.error({message: '连接删除失败' + response.data.msg, center: true});
                 return null
               }
-              _this.$message.success({message: '连接删除成功',});
+              _this.$message.success({message: '连接删除成功', center: true});
               _this.getDBLink()
             })
             .catch(function (err) {
               console.log(err);
-              _this.$message.error({message: '连接删除失败',});
+              _this.$message.error({message: '连接删除失败', center: true});
             })
       })
 

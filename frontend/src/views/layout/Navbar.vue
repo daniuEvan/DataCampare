@@ -14,6 +14,12 @@
     <el-menu-item index="schedulerManager"><i class="el-icon-date my-icon"></i>调度管理</el-menu-item>
 <!--    <el-menu-item index="5"><a href="https://element.eleme.cn/#/zh-CN/component/menu" target="_blank">ele-ui</a>-->
 <!--    </el-menu-item>-->
+    <el-submenu index="resultQuery">
+      <template slot="title"><i class="el-icon-date my-icon"></i>结果查询</template>
+      <el-menu-item index="resultQuery">选项1</el-menu-item>
+      <el-menu-item index="2-4-2">选项2</el-menu-item>
+      <el-menu-item index="2-4-3">选项3</el-menu-item>
+    </el-submenu>
     <div class="readme" @click="readmeVisible = true" >
       <el-tooltip class="item" effect="dark" content="使用说明" placement="left">
         <i class="el-icon-question my-icon"></i>
@@ -42,7 +48,9 @@ export default {
     Readme
   },
   methods: {
-    handleSelect(key) {
+    handleSelect(key,keyPath) {
+      console.log(key);
+      console.log(keyPath);
       this.activeIndex = key
       this.$router.push({name: key})
     },

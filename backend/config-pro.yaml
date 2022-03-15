@@ -17,7 +17,7 @@ database:
   # mysql conf
   mysql:
     dbname: data_compare
-    host: 101.201.211.113
+    host: 155.16.144.83
     port: 3306
     username: root
     password: Abcd@123456
