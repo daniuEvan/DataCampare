@@ -2,45 +2,47 @@
   <el-table
       :data="tableData"
       border
-      style="width: 100%">
+      :row-style="rowStyle"
+      style="width: 100%"
+  >
     <el-table-column
         align="center"
-        prop="date"
+        prop="owner"
         label="OWNER"
     >
     </el-table-column>
     <el-table-column
         align="center"
-        prop="date"
+        prop="tablename"
         label="TABLENAME"
     >
     </el-table-column>
     <el-table-column
         align="center"
-        prop="date"
+        prop="source_num"
         label="SOURCE_NUM"
     >
     </el-table-column>
     <el-table-column
         align="center"
-        prop="date"
+        prop="target_num"
         label="TARGET_NUM"
     >
     </el-table-column>
     <el-table-column
         align="center"
-        prop="name"
+        prop="source_max"
         label="SOURCE_MAX"
     >
     </el-table-column>
     <el-table-column
         align="center"
-        prop="address"
+        prop="target_max"
         label="TARGET_MAX">
     </el-table-column>
     <el-table-column
         align="center"
-        prop="address"
+        prop="check_time"
         label="CHECK_TIME">
     </el-table-column>
   </el-table>
@@ -49,10 +51,25 @@
 <script>
 export default {
   name: "TablePage",
-  props:["tableData"],
+  props: ["tableData"],
+  methods: {
+    rowStyle({row, rowIndex}) {
+      if (row["source_num"] !== row["target_num"]) {
+        return {
+          color: "red"
+        }
+      }
+    }
+  }
 }
 </script>
 
 <style scoped>
+.el-table .warning-row {
+  background: oldlace;
+}
 
+.el-table .success-row {
+  background: #f0f9eb;
+}
 </style>

@@ -91,6 +91,7 @@ func GetResultTableInfo(ctx *gin.Context) {
 	defer resultDBlinker.Close()
 	dbType := resultTableDBOption.DBType
 	requestTableQuerySQL := customSQL.ResultTableSQLMap[dbType]
+	var countSQL string
 	switch dbType {
 	case "oracle":
 		requestTableQuerySQL = fmt.Sprintf(
@@ -99,6 +100,7 @@ func GetResultTableInfo(ctx *gin.Context) {
 			startDate, endDate,
 			pageSize*pageNum, (pageNum-1)*pageSize,
 		)
+		countSQL = fmt.Sprintf("select count(*) count from %s.%s where check_time >= to_date('%s', 'yy-MM-dd') and check_time <= to_date('%s', 'yy-MM-dd')", resultDBOwner, resultDBName, startDate, endDate)
 	default:
 		requestTableQuerySQL = fmt.Sprintf(
 			requestTableQuerySQL,
@@ -106,7 +108,9 @@ func GetResultTableInfo(ctx *gin.Context) {
 			startDate, endDate,
 			pageSize, (pageNum-1)*pageSize,
 		)
+		countSQL = fmt.Sprintf("select count(*) count from %s.%s where check_time >= '%s' and check_time <= '%s'", resultDBOwner, resultDBName, startDate, endDate)
 	}
+	fmt.Println(requestTableQuerySQL)
 	tempQueryRes, err := resultDBlinker.Query(requestTableQuerySQL)
 	if err != nil {
 		global.Logger.Error("查询结果表", zap.String("msg", err.Error()))
@@ -119,5 +123,24 @@ func GetResultTableInfo(ctx *gin.Context) {
 		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
 		return
 	}
-	response.Success(ctx, queryRes, "请求成功")
+	tempCountQueryRes, err := resultDBlinker.Query(countSQL)
+	if err != nil {
+		global.Logger.Error("查询结果表", zap.String("msg", err.Error()))
+		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
+		return
+	}
+	countRes, err := utils.ParseQueryResult(tempCountQueryRes)
+	if err != nil {
+		global.Logger.Error("查询结果表", zap.String("msg", err.Error()))
+		response.Response(ctx, http.StatusInternalServerError, 500, nil, customError.InternalServerError.Error())
+		return
+	}
+	for _, item := range queryRes {
+		item["check_time"] = item["check_time"][0:10]
+	}
+	dataResponse := map[string]interface{}{
+		"dataArray": queryRes,
+		"count":     countRes[0]["count"],
+	}
+	response.Success(ctx, dataResponse, "请求成功")
 }
