@@ -25,11 +25,13 @@
       </el-card>
       <TablePage :tableData="tableData"></TablePage>
       <el-pagination
+          v-if="dataCount"
           background
           layout="prev, pager, next"
           small
+          :current-page="selectedPage"
           @current-change="pageChange"
-          :total="20"
+          :total="dataCount"
       >
       </el-pagination>
 
@@ -43,6 +45,7 @@
 
 import TablePage from "@/views/resultTableMsg/TablePage";
 import storageService from "@/service/storageService";
+import request from "@/utils/request";
 
 export default {
   name: "Index",
@@ -54,57 +57,16 @@ export default {
       selectedDate: [new Date(), new Date()],
       selectedTaskId: "",
       selectedPage: 1,
-      tableData: [
-        {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '金沙江路 1518 弄'
-        }, {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '金沙江路 1517 弄'
-        }, {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '金沙江路 1519 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '金沙江路 1516 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '金沙江路 1516 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '金沙江路 1516 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '金沙江路 1516 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '金沙江路 1516 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '金沙江路 1516 弄'
-        }, {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '金沙江路 1516 弄'
-        }
-      ],
+      tableData: [],
+      dataCount: 0,
       allTask: [],
+      pageSize: 10,
     }
   },
   methods: {
     query() {
-      console.log(this.selectedTaskId)
-      console.log(this.selectedPage)
-      console.log(this.selectedDate)
+      this.selectedPage = 1
+      this.getTableData()
     },
     getAllTask() {
       let tasks = storageService.get(storageService.TASK_INFO_LIST)
@@ -115,6 +77,7 @@ export default {
     },
     pageChange(currentPage) {
       this.selectedPage = currentPage
+      this.getTableData()
     },
     parseDate(dataArray) {
       let startDate, endDate = ""
@@ -126,12 +89,32 @@ export default {
       let endD = dataArray[1].getDate()
       startDate = `${startY}-${startM}-${startD}`
       endDate = `${endY}-${endM}-${endD}`
-      return [startDate , endDate]
-    }
+      return [startDate, endDate]
+    },
+    getTableData() {
+      let _this = this
+      let dateArray = this.parseDate(this.selectedDate)
+      let startDate = dateArray[0]
+      let endDate = dateArray[1]
+      request.get(
+          `/result/result_table/?taskId=${this.selectedTaskId}&pageNum=${this.selectedPage}&pageSize=${this.pageSize}&startDate=${startDate}&endDate=${endDate}`
+      )
+          .then(function (response) {
+            if (response.data.code !== 200) {
+              _this.$message.error(response.data.msg)
+              return null
+            }
+            _this.tableData = response.data.data["dataArray"]
+            _this.dataCount = Number(response.data.data["count"])
+          })
+          .catch(function (err) {
+            _this.$message.error(err)
+          })
+    },
   },
   mounted() {
     this.getAllTask()
-    console.log(this.parseDate(this.selectedDate))
+    this.query()
   }
 }
 </script>
