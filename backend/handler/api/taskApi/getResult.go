@@ -136,7 +136,7 @@ func GetResultTableInfo(ctx *gin.Context) {
 		return
 	}
 	for _, item := range queryRes {
-		item["check_time"] = item["check_time"][0:10]
+		item["check_time"] = item["check_time"]
 	}
 	dataResponse := map[string]interface{}{
 		"dataArray": queryRes,
